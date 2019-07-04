@@ -22,6 +22,11 @@
     "dist": "rollup -c rollup.config.js",
     "test": "jest"
   },
+  "files": [
+    "src/",
+    "dist/",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-proposal-class-properties": "^7.4.4",
