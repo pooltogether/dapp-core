@@ -16,6 +16,7 @@ module.exports = {
     'apollo-link-ethereum-mutations-ethersjs',
     'react',
     'react-apollo',
+    'graphql-tag',
     'ethers',
     'date-fns',
     'lodash'
