@@ -1,0 +1,40 @@
+{
+  "name": "apollo-link-ethereum-react",
+  "version": "0.1",
+  "description": "React components for Apollo Link Ethereum",
+  "module": "src/index.js",
+  "main": "dist/bundle.js",
+  "repository": "https://github.com/DeltaCamp/apollo-link-ethereum-react",
+  "author": "Brendan Asselstine <brendan@delta.camp>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "watch": "rollup -c rollup.config.js -w",
+    "dist": "rollup -c rollup.config.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-transform-runtime": "^7.5.0",
+    "@babel/preset-env": "^7.5.0",
+    "@babel/runtime": "^7.5.0",
+    "babel-jest": "^24.8.0",
+    "babel-preset-react-app": "^9.0.0",
+    "jest": "^24.8.0",
+    "rollup": "^1.16.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "timekeeper": "^2.2.0"
+  },
+  "dependencies": {
+    "apollo-link-ethereum-mutations-ethersjs": "^0.0.34",
+    "date-fns": "^2.0.0-alpha.27",
+    "ethers": "^4.0.32",
+    "eventemitter3": "^3.1.2",
+    "lodash": "^4.17.11",
+    "react": "^16.8.6",
+    "react-apollo": "^2.3.3"
+  }
+}
