@@ -1,11 +1,20 @@
 {
-  "name": "apollo-link-ethereum-react",
+  "name": "dapp-core",
   "version": "0.1",
-  "description": "React components for Apollo Link Ethereum",
+  "description": "Core dapp logic using Apollo Link Ethereum and Ethers",
   "module": "src/index.js",
   "main": "dist/bundle.js",
-  "repository": "https://github.com/DeltaCamp/apollo-link-ethereum-react",
-  "author": "Brendan Asselstine <brendan@delta.camp>",
+  "repository": "https://github.com/DeltaCamp/dapp-core",
+  "contributors": [
+    {
+      "name": "Brendan Asselstine",
+      "email": "brendan@delta.camp"
+    },
+    {
+      "name": "Chuck Bergeron",
+      "email": "chuck@delta.camp"
+    }
+  ],
   "license": "MIT",
   "private": false,
   "scripts": {
