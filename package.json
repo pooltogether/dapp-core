@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Core dapp logic using Apollo Link Ethereum and Ethers",
   "main": "dist/bundle.js",
-  "module": "src/index.js",
   "repository": "https://github.com/DeltaCamp/dapp-core",
   "contributors": [
     {
@@ -24,7 +23,6 @@
   },
   "files": [
     "dist/",
-    "src/",
     "LICENSE"
   ],
   "devDependencies": {
