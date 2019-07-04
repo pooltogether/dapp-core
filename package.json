@@ -45,9 +45,9 @@
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.2",
     "apollo-client": "^2.6.3",
-    "apollo-link-ethereum": "^0.0.34",
-    "apollo-link-ethereum-mutations-ethersjs": "^0.0.34",
-    "apollo-link-ethereum-resolver-ethersjs": "^0.0.34",
+    "apollo-link-ethereum": "^0.0.36",
+    "apollo-link-ethereum-mutations-ethersjs": "^0.0.36",
+    "apollo-link-ethereum-resolver-ethersjs": "^0.0.36",
     "date-fns": "^2.0.0-alpha.27",
     "ethers": "^4.0.32",
     "eventemitter3": "^3.1.2",
