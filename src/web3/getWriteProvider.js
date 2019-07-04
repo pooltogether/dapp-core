@@ -13,9 +13,9 @@ import { getNetworkName } from './getNetworkName'
   then an Ethers Web3Provider is instantiated and returned.
 */
 export async function getWriteProvider () {
-  if (window && window.ethereum) {
+  if (typeof window !== 'undefined' && window.ethereum) {
     return new ethers.providers.Web3Provider(window.ethereum)
-  } else if (window && window.web3) {
+  } else if (typeof window !== 'undefined' && window.web3) {
     const networkName = await getNetworkName()
     return new ethers.providers.Web3Provider(window.web3.currentProvider, networkName)
   } else {

@@ -780,7 +780,7 @@ function _getNetworkName() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            if (!(window && window.ethereum)) {
+            if (!(typeof window !== 'undefined' && window.ethereum)) {
               _context.next = 8;
               break;
             }
@@ -796,7 +796,7 @@ function _getNetworkName() {
             break;
 
           case 8:
-            if (!(window && window.web3)) {
+            if (!(typeof window !== 'undefined' && window.web3)) {
               _context.next = 20;
               break;
             }
@@ -869,7 +869,7 @@ function _getWriteProvider() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            if (!(window && window.ethereum)) {
+            if (!(typeof window !== 'undefined' && window.ethereum)) {
               _context.next = 4;
               break;
             }
@@ -877,7 +877,7 @@ function _getWriteProvider() {
             return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.ethereum));
 
           case 4:
-            if (!(window && window.web3)) {
+            if (!(typeof window !== 'undefined' && window.web3)) {
               _context.next = 11;
               break;
             }
@@ -906,7 +906,7 @@ function _getWriteProvider() {
   Checks to see if the user is using CoinBase Wallet
 */
 function isToshi() {
-  return window && window.web3 && window.web3.currentProvider.isToshi;
+  return typeof window !== 'undefined' && window.web3 && window.web3.currentProvider.isToshi;
 }
 
 var debug = require('debug')('pt:web3Resolvers');
@@ -1263,8 +1263,6 @@ var sendTransactionFactory = function sendTransactionFactory(abiMapping) {
  */
 
 var createClient = function createClient(abiMapping, provider, defaultFromBlock) {
-  window.provider = provider;
-  window.ethers = ethers.ethers;
   var ethersResolver = new apolloLinkEthereumResolverEthersjs.EthersResolver({
     abiMapping: abiMapping,
     provider: provider,
@@ -1289,7 +1287,6 @@ var createClient = function createClient(abiMapping, provider, defaultFromBlock)
     resolvers: resolvers,
     link: ethereumLink
   });
-  window.client = client;
   return client;
 };
 
@@ -1734,7 +1731,113 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	withTransactionEe: withTransactionEe
 });
 
+function getMetamaskPermissions() {
+  return _getMetamaskPermissions.apply(this, arguments);
+}
+
+function _getMetamaskPermissions() {
+  _getMetamaskPermissions = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!(typeof window !== 'undefined' && window.ethereum)) {
+              _context.next = 11;
+              break;
+            }
+
+            _context.prev = 1;
+            _context.next = 4;
+            return window.ethereum.enable();
+
+          case 4:
+            _context.next = 9;
+            break;
+
+          case 6:
+            _context.prev = 6;
+            _context.t0 = _context["catch"](1);
+
+            if (_context.t0 !== 'User rejected provider access') {
+              console.error(_context.t0);
+            }
+
+          case 9:
+            _context.next = 12;
+            break;
+
+          case 11:
+            console.warn('Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)');
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[1, 6]]);
+  }));
+  return _getMetamaskPermissions.apply(this, arguments);
+}
+
+function getNetworkId() {
+  return _getNetworkId.apply(this, arguments);
+}
+
+function _getNetworkId() {
+  _getNetworkId = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    var provider, network;
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return getReadProvider();
+
+          case 2:
+            provider = _context.sent;
+            _context.next = 5;
+            return provider.getNetwork();
+
+          case 5:
+            network = _context.sent;
+
+            if (!network) {
+              _context.next = 8;
+              break;
+            }
+
+            return _context.abrupt("return", network.chainId);
+
+          case 8:
+            return _context.abrupt("return", null);
+
+          case 9:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _getNetworkId.apply(this, arguments);
+}
+
+
+
+var index$6 = /*#__PURE__*/Object.freeze({
+	getMetamaskPermissions: getMetamaskPermissions,
+	getNetworkId: getNetworkId,
+	getNetworkName: getNetworkName,
+	getReadProvider: getReadProvider,
+	getWriteProvider: getWriteProvider,
+	isToshi: isToshi
+});
+
 exports.apollo = index$2;
 exports.queries = index$3;
 exports.react = index$5;
 exports.utils = index$4;
+exports.web3 = index$6;

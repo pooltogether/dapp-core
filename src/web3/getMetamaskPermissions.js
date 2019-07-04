@@ -1,5 +1,5 @@
 export async function getMetamaskPermissions () {
-  if (window && window.ethereum) {
+  if (typeof window !== 'undefined' && window.ethereum) {
     try {
       await window.ethereum.enable()
     } catch (error) {

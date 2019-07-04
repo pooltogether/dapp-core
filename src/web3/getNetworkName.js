@@ -2,11 +2,11 @@ import { ethers } from 'ethers'
 
 export async function getNetworkName () {
   let tempProvider, network, networkName
-  if (window && window.ethereum) {
+  if (typeof window !== 'undefined' && window.ethereum) {
     tempProvider = new ethers.providers.Web3Provider(window.ethereum)
     network = await tempProvider.getNetwork()
     networkName = network.name
-  } else if (window && window.web3) {
+  } else if (typeof window !== 'undefined' && window.web3) {
     if (window.web3.currentProvider.isToshi) {
       network = ethers.utils.getNetwork(parseInt(window.web3.version.network, 10))
     } else {
