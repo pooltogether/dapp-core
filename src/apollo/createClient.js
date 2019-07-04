@@ -5,7 +5,6 @@ import { EthersResolver } from 'apollo-link-ethereum-resolver-ethersjs'
 import { merge } from 'lodash'
 import { Query } from './resolvers/Query'
 import { sendTransactionFactory } from './resolvers/mutations/sendTransactionFactory'
-import { ethers } from 'ethers'
 
 /**
  * Configures and returns the Apollo client using all of it's mutations,
@@ -14,9 +13,6 @@ import { ethers } from 'ethers'
  * @returns {Object}
  */
 export const createClient = function (abiMapping, provider, defaultFromBlock) {
-  window.provider = provider
-  window.ethers = ethers
-
   const ethersResolver = new EthersResolver({
     abiMapping,
     provider,
@@ -47,8 +43,6 @@ export const createClient = function (abiMapping, provider, defaultFromBlock) {
     resolvers,
     link: ethereumLink
   })
-
-  window.client = client
 
   return client
 }
