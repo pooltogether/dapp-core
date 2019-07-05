@@ -1144,6 +1144,248 @@ function () {
   };
 }();
 
+function isWindowDefined() {
+  return typeof window !== 'undefined';
+}
+
+function isNavigatorDefined() {
+  return typeof navigator !== 'undefined';
+}
+/**
+ * Determine the browser.
+ * This function returns one of Brave, Chrome, Firefox, Safari, Opera
+ * https://stackoverflow.com/questions/21741841/detecting-ios-android-operating-system
+ *
+ * @returns {String}
+ */
+
+
+var getBrowser = function getBrowser(userAgent) {
+  var browser = 'unknown';
+
+  if (/chrome/i.test(userAgent)) {
+    browser = 'Chrome';
+  } else if (/safari/i.test(userAgent)) {
+    browser = 'Safari';
+  } else if (/firefox/i.test(userAgent)) {
+    browser = 'Firefox';
+  }
+
+  return browser;
+};
+/**
+ * Determine the mobile operating system.
+ * This function returns one of 'iOS', 'Android', or 'unknown'.
+ * https://stackoverflow.com/questions/21741841/detecting-ios-android-operating-system
+ *
+ * @returns {String}
+ */
+
+
+var getMobileOperatingSystem = function getMobileOperatingSystem(userAgent) {
+  var os = 'unknown';
+
+  if (/android/i.test(userAgent)) {
+    os = 'Android';
+  } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    // iOS detection from: http://stackoverflow.com/a/9039885/177710
+    os = 'iOS';
+  }
+
+  return os;
+};
+/**
+ * Determine if Web3 is available.
+ *
+ * @returns {Bool}
+ */
+
+
+var getWeb3Installed = function getWeb3Installed() {
+  var isInstalled = false;
+
+  if (isWindowDefined() && (window.web3 || window.ethereum)) {
+    isInstalled = true;
+  }
+
+  return isInstalled;
+};
+/**
+ * Lets you know if they've given you permission to their web3 wallet.
+ *
+ * @returns {Bool}
+ */
+
+
+var getWeb3Permission =
+/*#__PURE__*/
+function () {
+  var _ref = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    var hasPermission, isUnlocked, isApproved;
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            hasPermission = false;
+
+            if (!(isWindowDefined() && window.ethereum)) {
+              _context.next = 10;
+              break;
+            }
+
+            if (!window.ethereum._metamask) {
+              _context.next = 9;
+              break;
+            }
+
+            _context.next = 5;
+            return window.ethereum._metamask.isUnlocked();
+
+          case 5:
+            isUnlocked = _context.sent;
+            _context.next = 8;
+            return window.ethereum._metamask.isApproved();
+
+          case 8:
+            isApproved = _context.sent;
+
+          case 9:
+            // // hack due to a MetaMask bug that shows up when you Quit Chrome and re-open Chrome
+            // // right back to the tab using MetaMask
+            // if ((isUnlocked && isApproved) && !defined(this.props.address)) {
+            //   window.location.reload(true)
+            // }
+            // hasPermission = isUnlocked && isEnabled && isApproved
+            hasPermission = isUnlocked && isApproved;
+
+          case 10:
+            return _context.abrupt("return", hasPermission);
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+
+  return function getWeb3Permission() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+function getSystemInfo() {
+  return _getSystemInfo.apply(this, arguments);
+}
+
+function _getSystemInfo() {
+  _getSystemInfo = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee2() {
+    var osInfo, userAgent, hasWeb3Permission;
+    return regenerator.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            osInfo = {};
+
+            if (!(isNavigatorDefined() || isWindowDefined())) {
+              _context2.next = 7;
+              break;
+            }
+
+            userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            _context2.next = 5;
+            return getWeb3Permission();
+
+          case 5:
+            hasWeb3Permission = _context2.sent;
+            osInfo = {
+              mobileOS: getMobileOperatingSystem(userAgent),
+              // Android or iOS
+              browser: getBrowser(userAgent),
+              hasWeb3Available: getWeb3Installed(),
+              hasWeb3Permission: hasWeb3Permission
+            };
+
+          case 7:
+            return _context2.abrupt("return", osInfo);
+
+          case 8:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _getSystemInfo.apply(this, arguments);
+}
+
+function hasEthereumPermissions() {
+  return _hasEthereumPermissions.apply(this, arguments);
+}
+
+function _hasEthereumPermissions() {
+  _hasEthereumPermissions = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    var systemInfo;
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return getSystemInfo();
+
+          case 2:
+            systemInfo = _context.sent;
+            return _context.abrupt("return", systemInfo && systemInfo.hasWeb3Permission || systemInfo && systemInfo.hasWeb3Available && systemInfo.hasWeb3Permission === undefined);
+
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _hasEthereumPermissions.apply(this, arguments);
+}
+
+/**
+ * Resolvers execute the behaviour when an Apollo query with the same name is run.
+ */
+
+var ethereumPermission =
+/*#__PURE__*/
+function () {
+  var _ref = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return hasEthereumPermissions();
+
+          case 2:
+            return _context.abrupt("return", _context.sent);
+
+          case 3:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+
+  return function ethereumPermission() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1189,6 +1431,7 @@ function () {
 var index = /*#__PURE__*/Object.freeze({
 	account: account,
 	block: block,
+	ethereumPermission: ethereumPermission,
 	networkId: networkId
 });
 
@@ -1197,9 +1440,10 @@ var index = /*#__PURE__*/Object.freeze({
  */
 
 var Query = {
-  networkId: networkId,
   account: account,
-  block: block
+  block: block,
+  ethereumPermission: ethereumPermission,
+  networkId: networkId
 };
 
 
@@ -1289,6 +1533,17 @@ function _templateObject$1() {
 }
 var networkIdQuery = gql(_templateObject$1());
 
+function _templateObject$2() {
+  var data = _taggedTemplateLiteral(["\n  query ethereumPermissionQuery {\n    ethereumPermission @client\n  }\n"]);
+
+  _templateObject$2 = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+var ethereumPermissionQuery = gql(_templateObject$2());
+
 /**
  * Creates Apollo GraphQL subscriptions to watch for changes to the web3
  * browser network and refresh the page when an account or network is changed
@@ -1302,13 +1557,18 @@ function watchNetworkAndAccount(apolloClient) {
     query: accountQuery,
     pollInterval: 2000,
     fetchPolicy: 'network-only'
-  }); // This subscription listens for changes to a web3 browser (ie metamask's) network
+  }).subscribe(); // This subscription listens for changes to a web3 browser (ie metamask's) network
 
   apolloClient.watchQuery({
     query: networkIdQuery,
     pollInterval: 2000,
     fetchPolicy: 'network-only'
-  });
+  }).subscribe();
+  apolloClient.watchQuery({
+    query: ethereumPermissionQuery,
+    pollInterval: 1000,
+    fetchPolicy: 'network-only'
+  }).subscribe();
 }
 
 /**
@@ -1355,19 +1615,8 @@ var index$2 = /*#__PURE__*/Object.freeze({
 	createClient: createClient
 });
 
-function _templateObject$2() {
-  var data = _taggedTemplateLiteral(["\n  query blockQuery($blockNumber: Float!) {\n    block(blockNumber: $blockNumber) @client\n  }\n"]);
-
-  _templateObject$2 = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-var blockQuery = gql(_templateObject$2());
-
 function _templateObject$3() {
-  var data = _taggedTemplateLiteral(["\n  subscription blockSubscription {\n    block @block\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  query blockQuery($blockNumber: Float!) {\n    block(blockNumber: $blockNumber) @client\n  }\n"]);
 
   _templateObject$3 = function _templateObject() {
     return data;
@@ -1375,10 +1624,10 @@ function _templateObject$3() {
 
   return data;
 }
-var blockSubscription = gql(_templateObject$3());
+var blockQuery = gql(_templateObject$3());
 
 function _templateObject$4() {
-  var data = _taggedTemplateLiteral(["\n  query networkAccountQuery {\n    networkId @client\n    account @client\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  subscription blockSubscription {\n    block @block\n  }\n"]);
 
   _templateObject$4 = function _templateObject() {
     return data;
@@ -1386,7 +1635,18 @@ function _templateObject$4() {
 
   return data;
 }
-var networkAccountQuery = gql(_templateObject$4());
+var blockSubscription = gql(_templateObject$4());
+
+function _templateObject$5() {
+  var data = _taggedTemplateLiteral(["\n  query networkAccountQuery {\n    networkId @client\n    account @client\n  }\n"]);
+
+  _templateObject$5 = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+var networkAccountQuery = gql(_templateObject$5());
 
 
 
@@ -1394,6 +1654,7 @@ var index$3 = /*#__PURE__*/Object.freeze({
 	accountQuery: accountQuery,
 	blockQuery: blockQuery,
 	blockSubscription: blockSubscription,
+	ethereumPermissionQuery: ethereumPermissionQuery,
 	networkAccountQuery: networkAccountQuery,
 	networkIdQuery: networkIdQuery
 });
@@ -1839,215 +2100,6 @@ function _getNetworkId() {
     }, _callee);
   }));
   return _getNetworkId.apply(this, arguments);
-}
-
-function isWindowDefined() {
-  return typeof window !== 'undefined';
-}
-
-function isNavigatorDefined() {
-  return typeof navigator !== 'undefined';
-}
-/**
- * Determine the browser.
- * This function returns one of Brave, Chrome, Firefox, Safari, Opera
- * https://stackoverflow.com/questions/21741841/detecting-ios-android-operating-system
- *
- * @returns {String}
- */
-
-
-var getBrowser = function getBrowser(userAgent) {
-  var browser = 'unknown';
-
-  if (/chrome/i.test(userAgent)) {
-    browser = 'Chrome';
-  } else if (/safari/i.test(userAgent)) {
-    browser = 'Safari';
-  } else if (/firefox/i.test(userAgent)) {
-    browser = 'Firefox';
-  }
-
-  return browser;
-};
-/**
- * Determine the mobile operating system.
- * This function returns one of 'iOS', 'Android', or 'unknown'.
- * https://stackoverflow.com/questions/21741841/detecting-ios-android-operating-system
- *
- * @returns {String}
- */
-
-
-var getMobileOperatingSystem = function getMobileOperatingSystem(userAgent) {
-  var os = 'unknown';
-
-  if (/android/i.test(userAgent)) {
-    os = 'Android';
-  } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-    // iOS detection from: http://stackoverflow.com/a/9039885/177710
-    os = 'iOS';
-  }
-
-  return os;
-};
-/**
- * Determine if Web3 is available.
- *
- * @returns {Bool}
- */
-
-
-var getWeb3Installed = function getWeb3Installed() {
-  var isInstalled = false;
-
-  if (isWindowDefined() && (window.web3 || window.ethereum)) {
-    isInstalled = true;
-  }
-
-  return isInstalled;
-};
-/**
- * Lets you know if they've given you permission to their web3 wallet.
- *
- * @returns {Bool}
- */
-
-
-var getWeb3Permission =
-/*#__PURE__*/
-function () {
-  var _ref = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var hasPermission, isUnlocked, isApproved;
-    return regenerator.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            hasPermission = false;
-
-            if (!(isWindowDefined() && window.ethereum)) {
-              _context.next = 10;
-              break;
-            }
-
-            if (!window.ethereum._metamask) {
-              _context.next = 9;
-              break;
-            }
-
-            _context.next = 5;
-            return window.ethereum._metamask.isUnlocked();
-
-          case 5:
-            isUnlocked = _context.sent;
-            _context.next = 8;
-            return window.ethereum._metamask.isApproved();
-
-          case 8:
-            isApproved = _context.sent;
-
-          case 9:
-            // // hack due to a MetaMask bug that shows up when you Quit Chrome and re-open Chrome
-            // // right back to the tab using MetaMask
-            // if ((isUnlocked && isApproved) && !defined(this.props.address)) {
-            //   window.location.reload(true)
-            // }
-            // hasPermission = isUnlocked && isEnabled && isApproved
-            hasPermission = isUnlocked && isApproved;
-
-          case 10:
-            return _context.abrupt("return", hasPermission);
-
-          case 11:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-
-  return function getWeb3Permission() {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-function getSystemInfo() {
-  return _getSystemInfo.apply(this, arguments);
-}
-
-function _getSystemInfo() {
-  _getSystemInfo = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee2() {
-    var osInfo, userAgent, hasWeb3Permission;
-    return regenerator.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            osInfo = {};
-
-            if (!(isNavigatorDefined() || isWindowDefined())) {
-              _context2.next = 7;
-              break;
-            }
-
-            userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            _context2.next = 5;
-            return getWeb3Permission();
-
-          case 5:
-            hasWeb3Permission = _context2.sent;
-            osInfo = {
-              mobileOS: getMobileOperatingSystem(userAgent),
-              // Android or iOS
-              browser: getBrowser(userAgent),
-              hasWeb3Available: getWeb3Installed(),
-              hasWeb3Permission: hasWeb3Permission
-            };
-
-          case 7:
-            return _context2.abrupt("return", osInfo);
-
-          case 8:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, _callee2);
-  }));
-  return _getSystemInfo.apply(this, arguments);
-}
-
-function hasEthereumPermissions() {
-  return _hasEthereumPermissions.apply(this, arguments);
-}
-
-function _hasEthereumPermissions() {
-  _hasEthereumPermissions = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var systemInfo;
-    return regenerator.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            _context.next = 2;
-            return getSystemInfo();
-
-          case 2:
-            systemInfo = _context.sent;
-            return _context.abrupt("return", systemInfo && systemInfo.hasWeb3Permission || systemInfo && systemInfo.hasWeb3Available && systemInfo.hasWeb3Permission === undefined);
-
-          case 4:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-  return _hasEthereumPermissions.apply(this, arguments);
 }
 
 

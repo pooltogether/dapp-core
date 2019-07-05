@@ -1,5 +1,6 @@
 import { accountQuery } from '../queries/accountQuery'
 import { networkIdQuery } from '../queries/networkIdQuery'
+import { ethereumPermissionQuery } from '../queries/ethereumPermissionQuery'
 
 /**
  * Creates Apollo GraphQL subscriptions to watch for changes to the web3
@@ -13,12 +14,18 @@ export function watchNetworkAndAccount (apolloClient) {
     query: accountQuery,
     pollInterval: 2000,
     fetchPolicy: 'network-only'
-  })
+  }).subscribe()
 
   // This subscription listens for changes to a web3 browser (ie metamask's) network
   apolloClient.watchQuery({
     query: networkIdQuery,
     pollInterval: 2000,
     fetchPolicy: 'network-only'
-  })
+  }).subscribe()
+
+  apolloClient.watchQuery({
+    query: ethereumPermissionQuery,
+    pollInterval: 1000,
+    fetchPolicy: 'network-only'
+  }).subscribe()
 }
