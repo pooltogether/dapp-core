@@ -5,6 +5,7 @@ import { EthersResolver } from 'apollo-link-ethereum-resolver-ethersjs'
 import { merge } from 'lodash'
 import { Query } from './resolvers/Query'
 import { sendTransactionFactory } from './resolvers/mutations/sendTransactionFactory'
+import { watchNetworkAndAccount } from './watchNetworkAndAccount'
 
 /**
  * Configures and returns the Apollo client using all of it's mutations,
@@ -43,6 +44,8 @@ export const createClient = function (abiMapping, provider, defaultFromBlock) {
     resolvers,
     link: ethereumLink
   })
+
+  watchNetworkAndAccount(client)
 
   return client
 }

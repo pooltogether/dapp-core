@@ -1255,6 +1255,62 @@ var sendTransactionFactory = function sendTransactionFactory(abiMapping) {
   );
 };
 
+function _taggedTemplateLiteral(strings, raw) {
+  if (!raw) {
+    raw = strings.slice(0);
+  }
+
+  return Object.freeze(Object.defineProperties(strings, {
+    raw: {
+      value: Object.freeze(raw)
+    }
+  }));
+}
+
+function _templateObject() {
+  var data = _taggedTemplateLiteral(["\n  query accountQuery {\n    account @client\n  }\n"]);
+
+  _templateObject = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+var accountQuery = gql(_templateObject());
+
+function _templateObject$1() {
+  var data = _taggedTemplateLiteral(["\n  query networkIdQuery {\n    networkId @client\n  }\n"]);
+
+  _templateObject$1 = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+var networkIdQuery = gql(_templateObject$1());
+
+/**
+ * Creates Apollo GraphQL subscriptions to watch for changes to the web3
+ * browser network and refresh the page when an account or network is changed
+ *
+ * @returns {undefined}
+ */
+
+function watchNetworkAndAccount(apolloClient) {
+  // If the user signs in to MetaMask or logs out, we should ... (refresh the page?)
+  apolloClient.watchQuery({
+    query: accountQuery,
+    pollInterval: 2000,
+    fetchPolicy: 'network-only'
+  }); // This subscription listens for changes to a web3 browser (ie metamask's) network
+
+  apolloClient.watchQuery({
+    query: networkIdQuery,
+    pollInterval: 2000,
+    fetchPolicy: 'network-only'
+  });
+}
+
 /**
  * Configures and returns the Apollo client using all of it's mutations,
  * resolvers and contract addresses
@@ -1287,6 +1343,7 @@ var createClient = function createClient(abiMapping, provider, defaultFromBlock)
     resolvers: resolvers,
     link: ethereumLink
   });
+  watchNetworkAndAccount(client);
   return client;
 };
 
@@ -1298,42 +1355,8 @@ var index$2 = /*#__PURE__*/Object.freeze({
 	createClient: createClient
 });
 
-function _taggedTemplateLiteral(strings, raw) {
-  if (!raw) {
-    raw = strings.slice(0);
-  }
-
-  return Object.freeze(Object.defineProperties(strings, {
-    raw: {
-      value: Object.freeze(raw)
-    }
-  }));
-}
-
-function _templateObject() {
-  var data = _taggedTemplateLiteral(["\n  query accountQuery {\n    account @client\n  }\n"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-var accountQuery = gql(_templateObject());
-
-function _templateObject$1() {
-  var data = _taggedTemplateLiteral(["\n  query blockQuery($blockNumber: Float!) {\n    block(blockNumber: $blockNumber) @client\n  }\n"]);
-
-  _templateObject$1 = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-var blockQuery = gql(_templateObject$1());
-
 function _templateObject$2() {
-  var data = _taggedTemplateLiteral(["\n  subscription blockSubscription {\n    block @block\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  query blockQuery($blockNumber: Float!) {\n    block(blockNumber: $blockNumber) @client\n  }\n"]);
 
   _templateObject$2 = function _templateObject() {
     return data;
@@ -1341,10 +1364,10 @@ function _templateObject$2() {
 
   return data;
 }
-var blockSubscription = gql(_templateObject$2());
+var blockQuery = gql(_templateObject$2());
 
 function _templateObject$3() {
-  var data = _taggedTemplateLiteral(["\n  query networkAccountQuery {\n    networkId @client\n    account @client\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  subscription blockSubscription {\n    block @block\n  }\n"]);
 
   _templateObject$3 = function _templateObject() {
     return data;
@@ -1352,10 +1375,10 @@ function _templateObject$3() {
 
   return data;
 }
-var networkAccountQuery = gql(_templateObject$3());
+var blockSubscription = gql(_templateObject$3());
 
 function _templateObject$4() {
-  var data = _taggedTemplateLiteral(["\n  query networkIdQuery {\n    networkId @client\n  }\n"]);
+  var data = _taggedTemplateLiteral(["\n  query networkAccountQuery {\n    networkId @client\n    account @client\n  }\n"]);
 
   _templateObject$4 = function _templateObject() {
     return data;
@@ -1363,7 +1386,7 @@ function _templateObject$4() {
 
   return data;
 }
-var networkIdQuery = gql(_templateObject$4());
+var networkAccountQuery = gql(_templateObject$4());
 
 
 
@@ -1631,8 +1654,6 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 
-var _jsxFileName = "/Users/brendan/workspace/dapp-core/src/react/withTransactionEe.js";
-
 var EventEmitter = require('eventemitter3');
 
 var debug$2 = require('debug')('pt:withTransactionEe');
@@ -1711,12 +1732,7 @@ function withTransactionEe(Component) {
       key: "render",
       value: function render() {
         return React__default.createElement(Component, Object.assign({}, this.props, {
-          ee: this.ee,
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 54
-          },
-          __self: this
+          ee: this.ee
         }));
       }
     }]);
