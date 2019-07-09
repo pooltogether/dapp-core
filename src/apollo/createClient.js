@@ -13,7 +13,17 @@ import { watchNetworkAndAccount } from './watchNetworkAndAccount'
  *
  * @returns {Object}
  */
-export const createClient = function (abiMapping, provider, defaultFromBlock) {
+export const createClient = function (
+  options = {}
+) {
+  const {
+    abiMapping,
+    provider,
+    defaultFromBlock
+  } = options
+  const userResolvers = options.resolvers || {}
+  const initialCacheData = options.initialCacheData || {}
+
   const ethersResolver = new EthersResolver({
     abiMapping,
     provider,
@@ -24,13 +34,16 @@ export const createClient = function (abiMapping, provider, defaultFromBlock) {
   const cache = new InMemoryCache()
 
   cache.writeData({
-    data: {
-      transactions: []
-    }
+    data: merge(
+      initialCacheData,
+      {
+        transactions: []
+      }
+    )
   })
 
   const resolvers = merge(
-    {},
+    userResolvers,
     { Query },
     { 
       Mutation: {

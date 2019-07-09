@@ -1578,7 +1578,13 @@ function watchNetworkAndAccount(apolloClient) {
  * @returns {Object}
  */
 
-var createClient = function createClient(abiMapping, provider, defaultFromBlock) {
+var createClient = function createClient() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var abiMapping = options.abiMapping,
+      provider = options.provider,
+      defaultFromBlock = options.defaultFromBlock;
+  var userResolvers = options.resolvers || {};
+  var initialCacheData = options.initialCacheData || {};
   var ethersResolver = new apolloLinkEthereumResolverEthersjs.EthersResolver({
     abiMapping: abiMapping,
     provider: provider,
@@ -1587,11 +1593,11 @@ var createClient = function createClient(abiMapping, provider, defaultFromBlock)
   var ethereumLink = new apolloLinkEthereum.EthereumLink(ethersResolver);
   var cache = new apolloCacheInmemory.InMemoryCache();
   cache.writeData({
-    data: {
+    data: _.merge(initialCacheData, {
       transactions: []
-    }
+    })
   });
-  var resolvers = _.merge({}, {
+  var resolvers = _.merge(userResolvers, {
     Query: Query
   }, {
     Mutation: {
