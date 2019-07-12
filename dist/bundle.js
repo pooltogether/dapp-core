@@ -775,66 +775,67 @@ function _getNetworkName() {
   _getNetworkName = _asyncToGenerator(
   /*#__PURE__*/
   regenerator.mark(function _callee() {
-    var tempProvider, network, networkName;
+    var defaultNetworkName,
+        tempProvider,
+        network,
+        networkName,
+        _args = arguments;
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            defaultNetworkName = _args.length > 0 && _args[0] !== undefined ? _args[0] : 'homestead';
+
             if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 8;
+              _context.next = 9;
               break;
             }
 
             tempProvider = new ethers.ethers.providers.Web3Provider(window.ethereum);
-            _context.next = 4;
+            _context.next = 5;
             return tempProvider.getNetwork();
 
-          case 4:
+          case 5:
             network = _context.sent;
             networkName = network.name;
-            _context.next = 21;
+            _context.next = 22;
             break;
 
-          case 8:
+          case 9:
             if (!(typeof window !== 'undefined' && window.web3)) {
-              _context.next = 20;
+              _context.next = 21;
               break;
             }
 
             if (!window.web3.currentProvider.isToshi) {
-              _context.next = 13;
+              _context.next = 14;
               break;
             }
 
             network = ethers.ethers.utils.getNetwork(parseInt(window.web3.version.network, 10));
-            _context.next = 17;
+            _context.next = 18;
             break;
 
-          case 13:
+          case 14:
             tempProvider = new ethers.ethers.providers.Web3Provider(window.web3.currentProvider);
-            _context.next = 16;
+            _context.next = 17;
             return tempProvider.getNetwork();
 
-          case 16:
+          case 17:
             network = _context.sent;
 
-          case 17:
+          case 18:
             networkName = network.name;
-            _context.next = 21;
+            _context.next = 22;
             break;
 
-          case 20:
-            if (!process.env.REACT_APP_DEFAULT_NETWORK_NAME) {
-              networkName = 'rinkeby';
-              console.warn('Environment variable `REACT_APP_DEFAULT_NETWORK_NAME` not defined; defaulting to rinkeby');
-            } else {
-              networkName = process.env.REACT_APP_DEFAULT_NETWORK_NAME;
-            }
-
           case 21:
-            return _context.abrupt("return", networkName);
+            networkName = defaultNetworkName;
 
           case 22:
+            return _context.abrupt("return", networkName);
+
+          case 23:
           case "end":
             return _context.stop();
         }
@@ -1040,110 +1041,6 @@ function _objectSpread(target) {
   return target;
 }
 
-var provider;
-/**
-  Retrieves a new provider specific to read.  The reason we separate the read and the writes is that the
-  web3 providers on mobile dapps are extremely buggy; it's better to read the network through an INFURA
-  JsonRpc endpoint.
-
-  This function will first check to see if there is an injected web3.  If web3 is being injected, then a
-  Ethers Web3Provider is instantiated to check the network.  Once the network is determined the Ethers
-  getDefaultProvider function is used to create a provider pointing to the same network using an Infura node.
-*/
-
-function getReadProvider() {
-  return _getReadProvider.apply(this, arguments);
-}
-
-function _getReadProvider() {
-  _getReadProvider = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var networkName;
-    return regenerator.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            if (!provider) {
-              _context.next = 2;
-              break;
-            }
-
-            return _context.abrupt("return", provider);
-
-          case 2:
-            _context.next = 4;
-            return getNetworkName();
-
-          case 4:
-            networkName = _context.sent;
-
-            if (networkName !== 'unknown') {
-              provider = ethers.ethers.getDefaultProvider(networkName);
-            } else {
-              provider = new ethers.ethers.providers.JsonRpcProvider('http://localhost:8545');
-            }
-
-            return _context.abrupt("return", provider);
-
-          case 7:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-  return _getReadProvider.apply(this, arguments);
-}
-
-var debug$1 = require('debug')('pt:web3Resolvers');
-/**
- * Resolvers execute the behaviour when an Apollo query with the same name is run.
- */
-
-
-var block =
-/*#__PURE__*/
-function () {
-  var _ref = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee(opts, args) {
-    var blockNumber, provider, block, result;
-    return regenerator.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            blockNumber = args.blockNumber;
-            _context.next = 3;
-            return getReadProvider();
-
-          case 3:
-            provider = _context.sent;
-            _context.next = 6;
-            return provider.getBlock(blockNumber);
-
-          case 6:
-            block = _context.sent;
-            result = _objectSpread({
-              __typename: 'EthersBlock',
-              id: blockNumber
-            }, block);
-            debug$1("block(".concat(blockNumber, "): "), result);
-            return _context.abrupt("return", result);
-
-          case 10:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-
-  return function block(_x, _x2) {
-    return _ref.apply(this, arguments);
-  };
-}();
-
 function isWindowDefined() {
   return typeof window !== 'undefined';
 }
@@ -1322,6 +1219,134 @@ function _getSystemInfo() {
   }));
   return _getSystemInfo.apply(this, arguments);
 }
+
+var provider;
+/**
+  Retrieves a new provider specific to read.  The reason we separate the read and the writes is that the
+  web3 providers on mobile dapps are extremely buggy; it's better to read the network through an INFURA
+  JsonRpc endpoint.
+
+  This function will first check to see if there is an injected web3.  If web3 is being injected, then a
+  Ethers Web3Provider is instantiated to check the network.  Once the network is determined the Ethers
+  getDefaultProvider function is used to create a provider pointing to the same network using an Infura node.
+*/
+
+function getReadProvider() {
+  return _getReadProvider.apply(this, arguments);
+}
+
+function _getReadProvider() {
+  _getReadProvider = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    var _ref,
+        defaultNetworkName,
+        systemInfo,
+        networkName,
+        _args = arguments;
+
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _ref = _args.length > 0 && _args[0] !== undefined ? _args[0] : {}, defaultNetworkName = _ref.defaultNetworkName;
+
+            if (!provider) {
+              _context.next = 3;
+              break;
+            }
+
+            return _context.abrupt("return", provider);
+
+          case 3:
+            _context.next = 5;
+            return getSystemInfo();
+
+          case 5:
+            systemInfo = _context.sent;
+
+            if (!systemInfo.hasWeb3Available) {
+              _context.next = 12;
+              break;
+            }
+
+            _context.next = 9;
+            return getWriteProvider();
+
+          case 9:
+            provider = _context.sent;
+            _context.next = 14;
+            break;
+
+          case 12:
+            networkName = defaultNetworkName || 'homestead';
+
+            if (networkName === 'localhost') {
+              provider = new ethers.ethers.providers.JsonRpcProvider('http://localhost:8545');
+            } else {
+              provider = ethers.ethers.getDefaultProvider(networkName);
+            }
+
+          case 14:
+            return _context.abrupt("return", provider);
+
+          case 15:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _getReadProvider.apply(this, arguments);
+}
+
+var debug$1 = require('debug')('pt:web3Resolvers');
+/**
+ * Resolvers execute the behaviour when an Apollo query with the same name is run.
+ */
+
+
+var block =
+/*#__PURE__*/
+function () {
+  var _ref = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee(opts, args) {
+    var blockNumber, provider, block, result;
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            blockNumber = args.blockNumber;
+            _context.next = 3;
+            return getReadProvider();
+
+          case 3:
+            provider = _context.sent;
+            _context.next = 6;
+            return provider.getBlock(blockNumber);
+
+          case 6:
+            block = _context.sent;
+            result = _objectSpread({
+              __typename: 'EthersBlock',
+              id: blockNumber
+            }, block);
+            debug$1("block(".concat(blockNumber, "): "), result);
+            return _context.abrupt("return", result);
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+
+  return function block(_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+}();
 
 function hasEthereumPermissions() {
   return _hasEthereumPermissions.apply(this, arguments);
@@ -1816,6 +1841,7 @@ var index$4 = /*#__PURE__*/Object.freeze({
 	displayWeiToEther: displayWeiToEther,
 	formatEtherscanAddressUrl: formatEtherscanAddressUrl,
 	futureBlockDate: futureBlockDate,
+	getSystemInfo: getSystemInfo,
 	dateRelativeMs: dateRelativeMs,
 	normalizeAddr: normalizeAddr,
 	shortenAddress: shortenAddress,

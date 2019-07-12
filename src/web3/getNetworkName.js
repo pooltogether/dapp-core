@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-export async function getNetworkName () {
+export async function getNetworkName (defaultNetworkName = 'homestead') {
   let tempProvider, network, networkName
   if (typeof window !== 'undefined' && window.ethereum) {
     tempProvider = new ethers.providers.Web3Provider(window.ethereum)
@@ -15,12 +15,7 @@ export async function getNetworkName () {
     }
     networkName = network.name
   } else {
-    if (!process.env.REACT_APP_DEFAULT_NETWORK_NAME) {
-      networkName = 'rinkeby'
-      console.warn('Environment variable `REACT_APP_DEFAULT_NETWORK_NAME` not defined; defaulting to rinkeby')
-    } else {
-      networkName = process.env.REACT_APP_DEFAULT_NETWORK_NAME
-    }
+    networkName = defaultNetworkName
   }
 
   return networkName

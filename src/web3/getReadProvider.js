@@ -1,5 +1,7 @@
 import { ethers } from 'ethers'
 import { getNetworkName } from './getNetworkName'
+import { getWriteProvider } from './getWriteProvider'
+import { getSystemInfo } from '../utils/getSystemInfo'
 
 let provider
 
@@ -12,15 +14,19 @@ let provider
   Ethers Web3Provider is instantiated to check the network.  Once the network is determined the Ethers
   getDefaultProvider function is used to create a provider pointing to the same network using an Infura node.
 */
-export async function getReadProvider () {
+export async function getReadProvider ({ defaultNetworkName } = {}) {
   if (provider) { return provider }
 
-  const networkName = await getNetworkName()
-
-  if (networkName !== 'unknown') {
-    provider = ethers.getDefaultProvider(networkName)
+  const systemInfo = await getSystemInfo()
+  if (systemInfo.hasWeb3Available) {
+    provider = await getWriteProvider()
   } else {
-    provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
+    let networkName = defaultNetworkName || 'homestead'
+    if (networkName === 'localhost') {
+      provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
+    } else {
+      provider = ethers.getDefaultProvider(networkName)
+    }
   }
 
   return provider
