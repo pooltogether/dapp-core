@@ -1714,6 +1714,17 @@ function _templateObject$5() {
 }
 var networkAccountQuery = gql(_templateObject$5());
 
+function _templateObject$6() {
+  var data = _taggedTemplateLiteral(["\n  query systemInfoQuery {\n    systemInfo @client\n  }\n"]);
+
+  _templateObject$6 = function _templateObject() {
+    return data;
+  };
+
+  return data;
+}
+var systemInfoQuery = gql(_templateObject$6());
+
 
 
 var index$3 = /*#__PURE__*/Object.freeze({
@@ -1722,7 +1733,8 @@ var index$3 = /*#__PURE__*/Object.freeze({
 	blockSubscription: blockSubscription,
 	ethereumPermissionQuery: ethereumPermissionQuery,
 	networkAccountQuery: networkAccountQuery,
-	networkIdQuery: networkIdQuery
+	networkIdQuery: networkIdQuery,
+	systemInfoQuery: systemInfoQuery
 });
 
 function bigNumberify(value) {
