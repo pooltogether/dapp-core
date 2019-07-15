@@ -903,144 +903,6 @@ function _getWriteProvider() {
   return _getWriteProvider.apply(this, arguments);
 }
 
-/**
-  Checks to see if the user is using CoinBase Wallet
-*/
-function isToshi() {
-  return typeof window !== 'undefined' && window.web3 && window.web3.currentProvider.isToshi;
-}
-
-var debug = require('debug')('pt:web3Resolvers');
-/**
- * Resolvers execute the behaviour when an Apollo query with the same name is run.
- */
-
-
-var account =
-/*#__PURE__*/
-function () {
-  var _ref = _asyncToGenerator(
-  /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var accounts, provider, signer, address;
-    return regenerator.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            if (!isToshi()) {
-              _context.next = 7;
-              break;
-            }
-
-            debug('is toshi');
-            accounts = window.web3.eth.accounts;
-
-            if (!accounts.length) {
-              _context.next = 5;
-              break;
-            }
-
-            return _context.abrupt("return", accounts[0]);
-
-          case 5:
-            _context.next = 35;
-            break;
-
-          case 7:
-            _context.prev = 7;
-            _context.next = 10;
-            return getWriteProvider();
-
-          case 10:
-            provider = _context.sent;
-            debug('got write provider: ', !!provider);
-            _context.next = 17;
-            break;
-
-          case 14:
-            _context.prev = 14;
-            _context.t0 = _context["catch"](7);
-            console.error(_context.t0);
-
-          case 17:
-            if (provider) {
-              _context.next = 20;
-              break;
-            }
-
-            debug('no provider!');
-            return _context.abrupt("return", null);
-
-          case 20:
-            _context.prev = 20;
-            signer = provider.getSigner();
-            debug('signer: ', signer);
-            _context.next = 25;
-            return signer.getAddress();
-
-          case 25:
-            address = _context.sent;
-            debug('got address: ', address);
-            return _context.abrupt("return", address);
-
-          case 30:
-            _context.prev = 30;
-            _context.t1 = _context["catch"](20);
-            debug('ERROR: ', _context.t1);
-
-            if (_context.t1.message.indexOf('unknown account') === -1) {
-              console.error("Error in web3Resolvers#account: ".concat(_context.t1));
-            }
-
-            return _context.abrupt("return", null);
-
-          case 35:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee, null, [[7, 14], [20, 30]]);
-  }));
-
-  return function account() {
-    return _ref.apply(this, arguments);
-  };
-}();
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-function _objectSpread(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-    var ownKeys = Object.keys(source);
-
-    if (typeof Object.getOwnPropertySymbols === 'function') {
-      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
-      }));
-    }
-
-    ownKeys.forEach(function (key) {
-      _defineProperty(target, key, source[key]);
-    });
-  }
-
-  return target;
-}
-
 function isWindowDefined() {
   return typeof window !== 'undefined';
 }
@@ -1218,6 +1080,158 @@ function _getSystemInfo() {
     }, _callee2);
   }));
   return _getSystemInfo.apply(this, arguments);
+}
+
+/**
+  Checks to see if the user is using CoinBase Wallet
+*/
+function isToshi() {
+  return typeof window !== 'undefined' && window.web3 && window.web3.currentProvider.isToshi;
+}
+
+var debug = require('debug')('pt:web3Resolvers');
+/**
+ * Resolvers execute the behaviour when an Apollo query with the same name is run.
+ */
+
+
+var account =
+/*#__PURE__*/
+function () {
+  var _ref = _asyncToGenerator(
+  /*#__PURE__*/
+  regenerator.mark(function _callee() {
+    var accounts, provider, systemInfo, signer, address;
+    return regenerator.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            if (!isToshi()) {
+              _context.next = 7;
+              break;
+            }
+
+            debug('is toshi');
+            accounts = window.web3.eth.accounts;
+
+            if (!accounts.length) {
+              _context.next = 5;
+              break;
+            }
+
+            return _context.abrupt("return", accounts[0]);
+
+          case 5:
+            _context.next = 40;
+            break;
+
+          case 7:
+            _context.next = 9;
+            return getSystemInfo();
+
+          case 9:
+            systemInfo = _context.sent;
+
+            if (systemInfo.hasWeb3Available) {
+              _context.next = 12;
+              break;
+            }
+
+            return _context.abrupt("return", null);
+
+          case 12:
+            _context.prev = 12;
+            _context.next = 15;
+            return getWriteProvider();
+
+          case 15:
+            provider = _context.sent;
+            debug('got write provider: ', !!provider);
+            _context.next = 22;
+            break;
+
+          case 19:
+            _context.prev = 19;
+            _context.t0 = _context["catch"](12);
+            console.error(_context.t0);
+
+          case 22:
+            if (provider) {
+              _context.next = 25;
+              break;
+            }
+
+            debug('no provider!');
+            return _context.abrupt("return", null);
+
+          case 25:
+            _context.prev = 25;
+            signer = provider.getSigner();
+            debug('signer: ', signer);
+            _context.next = 30;
+            return signer.getAddress();
+
+          case 30:
+            address = _context.sent;
+            debug('got address: ', address);
+            return _context.abrupt("return", address);
+
+          case 35:
+            _context.prev = 35;
+            _context.t1 = _context["catch"](25);
+            debug('ERROR: ', _context.t1);
+
+            if (_context.t1.message.indexOf('unknown account') === -1) {
+              console.error("Error in web3Resolvers#account: ".concat(_context.t1));
+            }
+
+            return _context.abrupt("return", null);
+
+          case 40:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, null, [[12, 19], [25, 35]]);
+  }));
+
+  return function account() {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
 }
 
 var provider;

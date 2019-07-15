@@ -1,4 +1,5 @@
 import { getWriteProvider } from '../../../web3/getWriteProvider'
+import { getSystemInfo } from '../../../utils/getSystemInfo'
 import { isToshi } from '../../../web3/isToshi'
 
 const debug = require('debug')('pt:web3Resolvers')
@@ -15,6 +16,10 @@ export const account = async function () {
     }
   } else {
     let provider
+    let systemInfo = await getSystemInfo()
+    if (!systemInfo.hasWeb3Available) {
+      return null
+    }
     try {
       provider = await getWriteProvider()
       debug('got write provider: ', !!provider)
