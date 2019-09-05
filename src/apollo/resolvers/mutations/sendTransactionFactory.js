@@ -2,9 +2,16 @@ import { sendTransactionWithOptions } from 'apollo-link-ethereum-mutations-ether
 
 import { getWriteProvider } from '../../../web3/getWriteProvider'
 
-export const sendTransactionFactory = function (abiMapping) {
+export const sendTransactionFactory = function (abiMapping, writeProvider) {
   return async function (rootData, args, context, info) {
-    const provider = await getWriteProvider()
+    let provider
+    if (typeof writeProvider === 'function') {
+      provider = await writeProvider()
+    } else if (writeProvider) {
+      provider = writeProvider
+    } else {
+      provider = await getWriteProvider()
+    }
     const options = {
       provider,
       abiMapping

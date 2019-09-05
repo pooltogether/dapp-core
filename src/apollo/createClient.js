@@ -19,6 +19,7 @@ export const createClient = function (
   const {
     abiMapping,
     provider,
+    writeProvider,
     defaultFromBlock
   } = options
   const userResolvers = options.resolvers || {}
@@ -47,7 +48,7 @@ export const createClient = function (
     { Query },
     { 
       Mutation: {
-        sendTransaction: sendTransactionFactory(abiMapping)
+        sendTransaction: sendTransactionFactory(abiMapping, writeProvider)
       }
     }
   )

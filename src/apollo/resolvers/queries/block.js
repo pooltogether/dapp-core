@@ -1,6 +1,6 @@
 import { getReadProvider } from '../../../web3/getReadProvider'
 
-const debug = require('debug')('pt:web3Resolvers')
+const debug = require('debug')('pt:web3Resolvers:block')
 
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
@@ -8,6 +8,7 @@ const debug = require('debug')('pt:web3Resolvers')
 export const block = async function (opts, args) {
   const { blockNumber } = args
   const provider = await getReadProvider()
+  debug('blockNumber: ', blockNumber)
   const block = await provider.getBlock(blockNumber)
   const result = {
     __typename: 'EthersBlock',

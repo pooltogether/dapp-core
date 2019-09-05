@@ -1314,7 +1314,7 @@ function _getReadProvider() {
   return _getReadProvider.apply(this, arguments);
 }
 
-var debug$1 = require('debug')('pt:web3Resolvers');
+var debug$1 = require('debug')('pt:web3Resolvers:block');
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1337,10 +1337,11 @@ function () {
 
           case 3:
             provider = _context.sent;
-            _context.next = 6;
+            debug$1('blockNumber: ', blockNumber);
+            _context.next = 7;
             return provider.getBlock(blockNumber);
 
-          case 6:
+          case 7:
             block = _context.sent;
             result = _objectSpread({
               __typename: 'EthersBlock',
@@ -1349,7 +1350,7 @@ function () {
             debug$1("block(".concat(blockNumber, "): "), result);
             return _context.abrupt("return", result);
 
-          case 10:
+          case 11:
           case "end":
             return _context.stop();
         }
@@ -1534,7 +1535,7 @@ function addTruffleArtifact(abiMapping, name, abi, truffleJsonArtifact) {
   });
 }
 
-var sendTransactionFactory = function sendTransactionFactory(abiMapping) {
+var sendTransactionFactory = function sendTransactionFactory(abiMapping, writeProvider) {
   return (
     /*#__PURE__*/
     function () {
@@ -1546,11 +1547,37 @@ var sendTransactionFactory = function sendTransactionFactory(abiMapping) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                if (!(typeof writeProvider === 'function')) {
+                  _context.next = 6;
+                  break;
+                }
+
+                _context.next = 3;
+                return writeProvider();
+
+              case 3:
+                provider = _context.sent;
+                _context.next = 13;
+                break;
+
+              case 6:
+                if (!writeProvider) {
+                  _context.next = 10;
+                  break;
+                }
+
+                provider = writeProvider;
+                _context.next = 13;
+                break;
+
+              case 10:
+                _context.next = 12;
                 return getWriteProvider();
 
-              case 2:
+              case 12:
                 provider = _context.sent;
+
+              case 13:
                 options = {
                   provider: provider,
                   abiMapping: abiMapping
@@ -1558,7 +1585,7 @@ var sendTransactionFactory = function sendTransactionFactory(abiMapping) {
                 fn = apolloLinkEthereumMutationsEthersjs.sendTransactionWithOptions(options);
                 return _context.abrupt("return", fn(rootData, args, context, info));
 
-              case 6:
+              case 16:
               case "end":
                 return _context.stop();
             }
@@ -1656,6 +1683,7 @@ var createClient = function createClient() {
   var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var abiMapping = options.abiMapping,
       provider = options.provider,
+      writeProvider = options.writeProvider,
       defaultFromBlock = options.defaultFromBlock;
   var userResolvers = options.resolvers || {};
   var initialCacheData = options.initialCacheData || {};
@@ -1675,7 +1703,7 @@ var createClient = function createClient() {
     Query: Query
   }, {
     Mutation: {
-      sendTransaction: sendTransactionFactory(abiMapping)
+      sendTransaction: sendTransactionFactory(abiMapping, writeProvider)
     }
   });
   var client = new apolloClient.ApolloClient({
