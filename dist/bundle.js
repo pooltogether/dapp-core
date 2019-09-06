@@ -2118,8 +2118,6 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 
-var _jsxFileName = "/Users/brendan/workspace/dapp-core/src/react/withTransactionEe.js";
-
 var EventEmitter = require('eventemitter3');
 
 var debug$4 = require('debug')('pt:withTransactionEe');
@@ -2198,12 +2196,7 @@ function withTransactionEe(Component) {
       key: "render",
       value: function render() {
         return React__default.createElement(Component, Object.assign({}, this.props, {
-          ee: this.ee,
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 54
-          },
-          __self: this
+          ee: this.ee
         }));
       }
     }]);
