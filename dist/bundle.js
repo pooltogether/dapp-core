@@ -1776,11 +1776,16 @@ var createClient = function createClient() {
   });
   var ethereumLink = new apolloLinkEthereum.EthereumLink(ethersResolver);
   var cache = new apolloCacheInmemory.InMemoryCache();
-  cache.writeData({
-    data: _.merge(initialCacheData, {
-      transactions: []
-    })
-  });
+
+  var initCache = function initCache() {
+    cache.writeData({
+      data: _.merge(initialCacheData, {
+        transactions: []
+      })
+    });
+  };
+
+  initCache();
   var resolvers = _.merge({
     Query: Query
   }, {
@@ -1793,6 +1798,7 @@ var createClient = function createClient() {
     resolvers: resolvers,
     link: ethereumLink
   });
+  client.onResetStore(initCache);
   watchNetworkAndAccount(client);
   return client;
 };

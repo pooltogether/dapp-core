@@ -34,14 +34,18 @@ export const createClient = function (
 
   const cache = new InMemoryCache()
 
-  cache.writeData({
-    data: merge(
-      initialCacheData,
-      {
-        transactions: []
-      }
-    )
-  })
+  const initCache = () => {
+    cache.writeData({
+      data: merge(
+        initialCacheData,
+        {
+          transactions: []
+        }
+      )
+    })
+  }
+
+  initCache()
 
   const resolvers = merge(
     { Query },
@@ -58,6 +62,8 @@ export const createClient = function (
     resolvers,
     link: ethereumLink
   })
+
+  client.onResetStore(initCache)
 
   watchNetworkAndAccount(client)
 
