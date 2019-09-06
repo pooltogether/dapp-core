@@ -5,9 +5,15 @@ const debug = require('debug')('pt:web3Resolvers:block')
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
-export const block = async function (opts, args) {
+export const block = async function (opts, args, context, info) {
+  let { readProvider } = context
+  let provider
+  if (!readProvider) {
+    provider = await getReadProvider()
+  } else {
+    provider = await readProvider()
+  }
   const { blockNumber } = args
-  const provider = await getReadProvider()
   debug('blockNumber: ', blockNumber)
   const block = await provider.getBlock(blockNumber)
   const result = {

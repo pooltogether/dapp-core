@@ -44,13 +44,13 @@ export const createClient = function (
   })
 
   const resolvers = merge(
-    userResolvers,
     { Query },
     { 
       Mutation: {
         sendTransaction: sendTransactionFactory(abiMapping, writeProvider)
       }
-    }
+    },
+    userResolvers
   )
 
   const client = new ApolloClient({

@@ -1,10 +1,18 @@
 import { getReadProvider } from '../../../web3/getReadProvider'
 
+const debug = require('debug')('dapp-core:networkId')
+
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
-export const networkId = async function () {
-  const provider = await getReadProvider()
+export const networkId = async function (opts, args, context, info) {
+  let { readProvider } = context
+  let provider
+  if (!readProvider) {
+    provider = await getReadProvider()
+  } else {
+    provider = await readProvider()
+  }
   const network = await provider.getNetwork()
   return network.chainId
 }

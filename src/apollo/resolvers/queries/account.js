@@ -7,7 +7,19 @@ const debug = require('debug')('pt:web3Resolvers')
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
-export const account = async function () {
+export const account = async function (opts, args, context, info) {
+  let { writeProvider } = context
+  let provider
+  if (!writeProvider) {
+    try {
+      provider = await getWriteProvider()
+      debug('got write provider: ', !!provider)
+    } catch (e) {
+      console.error(e)
+    }
+  } else {
+    provider = await writeProvider()
+  }
   if (isToshi()) {
     debug('is toshi')
     let accounts = window.web3.eth.accounts
@@ -15,19 +27,12 @@ export const account = async function () {
       return accounts[0]
     }
   } else {
-    let provider
     let systemInfo = await getSystemInfo()
     if (!systemInfo.hasWeb3Available) {
       return null
     }
-    try {
-      provider = await getWriteProvider()
-      debug('got write provider: ', !!provider)
-    } catch (e) {
-      console.error(e)
-    }
     if (!provider) {
-      debug('no provider!')
+      debug('no writeProvider!')
       return null
     }
     try {

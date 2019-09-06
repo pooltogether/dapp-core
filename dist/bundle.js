@@ -1100,14 +1100,48 @@ var account =
 function () {
   var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var accounts, provider, systemInfo, signer, address;
+  regenerator.mark(function _callee(opts, args, context, info) {
+    var writeProvider, provider, accounts, systemInfo, signer, address;
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            writeProvider = context.writeProvider;
+
+            if (writeProvider) {
+              _context.next = 14;
+              break;
+            }
+
+            _context.prev = 2;
+            _context.next = 5;
+            return getWriteProvider();
+
+          case 5:
+            provider = _context.sent;
+            debug('got write provider: ', !!provider);
+            _context.next = 12;
+            break;
+
+          case 9:
+            _context.prev = 9;
+            _context.t0 = _context["catch"](2);
+            console.error(_context.t0);
+
+          case 12:
+            _context.next = 17;
+            break;
+
+          case 14:
+            _context.next = 16;
+            return writeProvider();
+
+          case 16:
+            provider = _context.sent;
+
+          case 17:
             if (!isToshi()) {
-              _context.next = 7;
+              _context.next = 24;
               break;
             }
 
@@ -1115,70 +1149,54 @@ function () {
             accounts = window.web3.eth.accounts;
 
             if (!accounts.length) {
-              _context.next = 5;
+              _context.next = 22;
               break;
             }
 
             return _context.abrupt("return", accounts[0]);
 
-          case 5:
-            _context.next = 40;
+          case 22:
+            _context.next = 47;
             break;
 
-          case 7:
-            _context.next = 9;
+          case 24:
+            _context.next = 26;
             return getSystemInfo();
 
-          case 9:
+          case 26:
             systemInfo = _context.sent;
 
             if (systemInfo.hasWeb3Available) {
-              _context.next = 12;
+              _context.next = 29;
               break;
             }
 
             return _context.abrupt("return", null);
 
-          case 12:
-            _context.prev = 12;
-            _context.next = 15;
-            return getWriteProvider();
-
-          case 15:
-            provider = _context.sent;
-            debug('got write provider: ', !!provider);
-            _context.next = 22;
-            break;
-
-          case 19:
-            _context.prev = 19;
-            _context.t0 = _context["catch"](12);
-            console.error(_context.t0);
-
-          case 22:
+          case 29:
             if (provider) {
-              _context.next = 25;
+              _context.next = 32;
               break;
             }
 
-            debug('no provider!');
+            debug('no writeProvider!');
             return _context.abrupt("return", null);
 
-          case 25:
-            _context.prev = 25;
+          case 32:
+            _context.prev = 32;
             signer = provider.getSigner();
             debug('signer: ', signer);
-            _context.next = 30;
+            _context.next = 37;
             return signer.getAddress();
 
-          case 30:
+          case 37:
             address = _context.sent;
             debug('got address: ', address);
             return _context.abrupt("return", address);
 
-          case 35:
-            _context.prev = 35;
-            _context.t1 = _context["catch"](25);
+          case 42:
+            _context.prev = 42;
+            _context.t1 = _context["catch"](32);
             debug('ERROR: ', _context.t1);
 
             if (_context.t1.message.indexOf('unknown account') === -1) {
@@ -1187,15 +1205,15 @@ function () {
 
             return _context.abrupt("return", null);
 
-          case 40:
+          case 47:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[12, 19], [25, 35]]);
+    }, _callee, null, [[2, 9], [32, 42]]);
   }));
 
-  return function account() {
+  return function account(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -1325,23 +1343,41 @@ var block =
 function () {
   var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  regenerator.mark(function _callee(opts, args) {
-    var blockNumber, provider, block, result;
+  regenerator.mark(function _callee(opts, args, context, info) {
+    var readProvider, provider, blockNumber, block, result;
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            blockNumber = args.blockNumber;
-            _context.next = 3;
+            readProvider = context.readProvider;
+
+            if (readProvider) {
+              _context.next = 7;
+              break;
+            }
+
+            _context.next = 4;
             return getReadProvider();
 
-          case 3:
+          case 4:
             provider = _context.sent;
-            debug$1('blockNumber: ', blockNumber);
-            _context.next = 7;
-            return provider.getBlock(blockNumber);
+            _context.next = 10;
+            break;
 
           case 7:
+            _context.next = 9;
+            return readProvider();
+
+          case 9:
+            provider = _context.sent;
+
+          case 10:
+            blockNumber = args.blockNumber;
+            debug$1('blockNumber: ', blockNumber);
+            _context.next = 14;
+            return provider.getBlock(blockNumber);
+
+          case 14:
             block = _context.sent;
             result = _objectSpread({
               __typename: 'EthersBlock',
@@ -1350,7 +1386,7 @@ function () {
             debug$1("block(".concat(blockNumber, "): "), result);
             return _context.abrupt("return", result);
 
-          case 11:
+          case 18:
           case "end":
             return _context.stop();
         }
@@ -1358,7 +1394,7 @@ function () {
     }, _callee);
   }));
 
-  return function block(_x, _x2) {
+  return function block(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -1426,34 +1462,54 @@ function () {
   };
 }();
 
+var debug$2 = require('debug')('dapp-core:networkId');
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
+
 
 var networkId =
 /*#__PURE__*/
 function () {
   var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  regenerator.mark(function _callee() {
-    var provider, network;
+  regenerator.mark(function _callee(opts, args, context, info) {
+    var readProvider, provider, network;
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
+            readProvider = context.readProvider;
+
+            if (readProvider) {
+              _context.next = 7;
+              break;
+            }
+
+            _context.next = 4;
             return getReadProvider();
 
-          case 2:
+          case 4:
             provider = _context.sent;
-            _context.next = 5;
+            _context.next = 10;
+            break;
+
+          case 7:
+            _context.next = 9;
+            return readProvider();
+
+          case 9:
+            provider = _context.sent;
+
+          case 10:
+            _context.next = 12;
             return provider.getNetwork();
 
-          case 5:
+          case 12:
             network = _context.sent;
             return _context.abrupt("return", network.chainId);
 
-          case 7:
+          case 14:
           case "end":
             return _context.stop();
         }
@@ -1461,7 +1517,7 @@ function () {
     }, _callee);
   }));
 
-  return function networkId() {
+  return function networkId(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -1521,11 +1577,37 @@ var Query = {
   systemInfo: systemInfo
 };
 
+var debug$3 = require('debug')('dapp-core:boundQuery');
+
+function wrap(fxn, extraContext) {
+  return function (opts, args, context, info) {
+    debug$3(extraContext);
+    return fxn(opts, args, Object.assign({}, context, extraContext), info);
+  };
+}
+
+function boundQuery(_ref) {
+  var readProvider = _ref.readProvider,
+      writeProvider = _ref.writeProvider;
+  var extraContext = {
+    readProvider: readProvider,
+    writeProvider: writeProvider
+  };
+  return {
+    account: wrap(account, extraContext),
+    block: wrap(block, extraContext),
+    ethereumPermission: ethereumPermission,
+    networkId: wrap(networkId, extraContext),
+    systemInfo: systemInfo
+  };
+}
+
 
 
 var index$1 = /*#__PURE__*/Object.freeze({
 	queries: index,
-	Query: Query
+	Query: Query,
+	boundQuery: boundQuery
 });
 
 function addTruffleArtifact(abiMapping, name, abi, truffleJsonArtifact) {
@@ -1699,13 +1781,13 @@ var createClient = function createClient() {
       transactions: []
     })
   });
-  var resolvers = _.merge(userResolvers, {
+  var resolvers = _.merge({
     Query: Query
   }, {
     Mutation: {
       sendTransaction: sendTransactionFactory(abiMapping, writeProvider)
     }
-  });
+  }, userResolvers);
   var client = new apolloClient.ApolloClient({
     cache: cache,
     resolvers: resolvers,
@@ -2036,9 +2118,11 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 
+var _jsxFileName = "/Users/brendan/workspace/dapp-core/src/react/withTransactionEe.js";
+
 var EventEmitter = require('eventemitter3');
 
-var debug$2 = require('debug')('pt:withTransactionEe');
+var debug$4 = require('debug')('pt:withTransactionEe');
 
 function withTransactionEe(Component) {
   var _temp;
@@ -2087,7 +2171,7 @@ function withTransactionEe(Component) {
       });
 
       _defineProperty(_assertThisInitialized(_this), "ee", function (transactionId) {
-        debug$2('------------ ', _typeof(transactionId), transactionId);
+        debug$4('------------ ', _typeof(transactionId), transactionId);
 
         if (!_this.transactionEmitters[transactionId]) {
           _this.transactionEmitters[transactionId] = new EventEmitter();
@@ -2114,7 +2198,12 @@ function withTransactionEe(Component) {
       key: "render",
       value: function render() {
         return React__default.createElement(Component, Object.assign({}, this.props, {
-          ee: this.ee
+          ee: this.ee,
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 54
+          },
+          __self: this
         }));
       }
     }]);
