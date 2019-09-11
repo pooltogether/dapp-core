@@ -870,25 +870,25 @@ function _getWriteProvider() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            if (!(typeof window !== 'undefined' && window.web3)) {
-              _context.next = 7;
-              break;
-            }
-
-            _context.next = 3;
-            return getNetworkName();
-
-          case 3:
-            networkName = _context.sent;
-            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.web3.currentProvider, networkName));
-
-          case 7:
             if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 11;
+              _context.next = 4;
               break;
             }
 
             return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.ethereum));
+
+          case 4:
+            if (!(typeof window !== 'undefined' && window.web3)) {
+              _context.next = 11;
+              break;
+            }
+
+            _context.next = 7;
+            return getNetworkName();
+
+          case 7:
+            networkName = _context.sent;
+            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.web3.currentProvider, networkName));
 
           case 11:
             throw new Error('You must have a web3-enabled browser to send Ethereum transactions');
@@ -2125,8 +2125,6 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 
-var _jsxFileName = "/Users/brendan/workspace/dapp-core/src/react/withTransactionEe.js";
-
 var EventEmitter = require('eventemitter3');
 
 var debug$4 = require('debug')('pt:withTransactionEe');
@@ -2205,12 +2203,7 @@ function withTransactionEe(Component) {
       key: "render",
       value: function render() {
         return React__default.createElement(Component, Object.assign({}, this.props, {
-          ee: this.ee,
-          __source: {
-            fileName: _jsxFileName,
-            lineNumber: 54
-          },
-          __self: this
+          ee: this.ee
         }));
       }
     }]);
@@ -2264,15 +2257,14 @@ function _askEthereumPermissions() {
             }
 
           case 10:
-            _context.next = 15;
+            _context.next = 14;
             break;
 
           case 12:
             msg = 'Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)';
-            alert(msg);
             console.warn(msg);
 
-          case 15:
+          case 14:
           case "end":
             return _context.stop();
         }
