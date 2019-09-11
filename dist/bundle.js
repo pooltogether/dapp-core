@@ -870,25 +870,25 @@ function _getWriteProvider() {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 4;
+            if (!(typeof window !== 'undefined' && window.web3)) {
+              _context.next = 7;
               break;
             }
 
-            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.ethereum));
+            _context.next = 3;
+            return getNetworkName();
 
-          case 4:
-            if (!(typeof window !== 'undefined' && window.web3)) {
+          case 3:
+            networkName = _context.sent;
+            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.web3.currentProvider, networkName));
+
+          case 7:
+            if (!(typeof window !== 'undefined' && window.ethereum)) {
               _context.next = 11;
               break;
             }
 
-            _context.next = 7;
-            return getNetworkName();
-
-          case 7:
-            networkName = _context.sent;
-            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.web3.currentProvider, networkName));
+            return _context.abrupt("return", new ethers.ethers.providers.Web3Provider(window.ethereum));
 
           case 11:
             throw new Error('You must have a web3-enabled browser to send Ethereum transactions');
@@ -1051,7 +1051,7 @@ function _getSystemInfo() {
             osInfo = {};
 
             if (!(isNavigatorDefined() || isWindowDefined())) {
-              _context2.next = 7;
+              _context2.next = 8;
               break;
             }
 
@@ -1060,7 +1060,8 @@ function _getSystemInfo() {
             return getWeb3Permission();
 
           case 5:
-            hasWeb3Permission = _context2.sent;
+            _context2.t0 = _context2.sent;
+            hasWeb3Permission = _context2.t0 === true;
             osInfo = {
               mobileOS: getMobileOperatingSystem(userAgent),
               // Android or iOS
@@ -1069,10 +1070,10 @@ function _getSystemInfo() {
               hasWeb3Permission: hasWeb3Permission
             };
 
-          case 7:
+          case 8:
             return _context2.abrupt("return", osInfo);
 
-          case 8:
+          case 9:
           case "end":
             return _context2.stop();
         }
@@ -2124,6 +2125,8 @@ function _inherits(subClass, superClass) {
   if (superClass) _setPrototypeOf(subClass, superClass);
 }
 
+var _jsxFileName = "/Users/brendan/workspace/dapp-core/src/react/withTransactionEe.js";
+
 var EventEmitter = require('eventemitter3');
 
 var debug$4 = require('debug')('pt:withTransactionEe');
@@ -2202,7 +2205,12 @@ function withTransactionEe(Component) {
       key: "render",
       value: function render() {
         return React__default.createElement(Component, Object.assign({}, this.props, {
-          ee: this.ee
+          ee: this.ee,
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 54
+          },
+          __self: this
         }));
       }
     }]);
@@ -2225,44 +2233,51 @@ function _askEthereumPermissions() {
   _askEthereumPermissions = _asyncToGenerator(
   /*#__PURE__*/
   regenerator.mark(function _callee() {
+    var requestPopUp,
+        msg,
+        _args = arguments;
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            requestPopUp = _args.length > 0 && _args[0] !== undefined ? _args[0] : true;
+
             if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 11;
+              _context.next = 12;
               break;
             }
 
-            _context.prev = 1;
-            _context.next = 4;
-            return window.ethereum.enable();
+            _context.prev = 2;
+            _context.next = 5;
+            return window.ethereum.enable(requestPopUp);
 
-          case 4:
-            _context.next = 9;
+          case 5:
+            _context.next = 10;
             break;
 
-          case 6:
-            _context.prev = 6;
-            _context.t0 = _context["catch"](1);
+          case 7:
+            _context.prev = 7;
+            _context.t0 = _context["catch"](2);
 
             if (_context.t0 !== 'User rejected provider access') {
               console.error(_context.t0);
             }
 
-          case 9:
-            _context.next = 12;
+          case 10:
+            _context.next = 15;
             break;
 
-          case 11:
-            console.warn('Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)');
-
           case 12:
+            msg = 'Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)';
+            alert(msg);
+            console.warn(msg);
+
+          case 15:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[1, 6]]);
+    }, _callee, null, [[2, 7]]);
   }));
   return _askEthereumPermissions.apply(this, arguments);
 }

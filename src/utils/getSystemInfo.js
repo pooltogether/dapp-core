@@ -99,7 +99,7 @@ export async function getSystemInfo () {
 
   if (isNavigatorDefined() || isWindowDefined()) {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera
-    const hasWeb3Permission = await getWeb3Permission()
+    const hasWeb3Permission = (await getWeb3Permission()) === true
 
     osInfo = {
       mobileOS: getMobileOperatingSystem(userAgent), // Android or iOS
