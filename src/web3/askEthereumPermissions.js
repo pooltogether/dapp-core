@@ -1,10 +1,18 @@
+const debug = require('debug')('dapp-core:askEthereumPermissions')
+
 export async function askEthereumPermissions (requestPopUp = true) {
   if (typeof window !== 'undefined' && window.ethereum) {
     try {
       await window.ethereum.enable(requestPopUp)
     } catch (error) {
-      if (error !== 'User rejected provider access') {
+      const msg = error.message
+      if (/User rejected provider access/i.test(msg)) {
         console.error(error)
+      } else if (/got 1 arguments/i.test(msg)) { // Opera doesn't support passing a boolean
+        if (requestPopUp) { // only if we wanted a pop-up, otherwise ignore and fail
+          await window.ethereum.enable()
+          debug('Enabled ethereum')
+        }
       }
     }
   } else {

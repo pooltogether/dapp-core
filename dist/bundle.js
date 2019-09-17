@@ -903,6 +903,8 @@ function _getWriteProvider() {
   return _getWriteProvider.apply(this, arguments);
 }
 
+var debug = require('debug')('dapp-core:getSystemInfo');
+
 function isWindowDefined() {
   return typeof window !== 'undefined';
 }
@@ -990,7 +992,7 @@ function () {
             hasPermission = false;
 
             if (!(isWindowDefined() && window.ethereum)) {
-              _context.next = 10;
+              _context.next = 11;
               break;
             }
 
@@ -1011,18 +1013,19 @@ function () {
             isApproved = _context.sent;
 
           case 9:
-            // // hack due to a MetaMask bug that shows up when you Quit Chrome and re-open Chrome
+            debug(window.ethereum); // // hack due to a MetaMask bug that shows up when you Quit Chrome and re-open Chrome
             // // right back to the tab using MetaMask
             // if ((isUnlocked && isApproved) && !defined(this.props.address)) {
             //   window.location.reload(true)
             // }
             // hasPermission = isUnlocked && isEnabled && isApproved
+
             hasPermission = isUnlocked && isApproved;
 
-          case 10:
+          case 11:
             return _context.abrupt("return", hasPermission);
 
-          case 11:
+          case 12:
           case "end":
             return _context.stop();
         }
@@ -1090,7 +1093,7 @@ function isToshi() {
   return typeof window !== 'undefined' && window.web3 && window.web3.currentProvider.isToshi;
 }
 
-var debug = require('debug')('pt:web3Resolvers');
+var debug$1 = require('debug')('pt:web3Resolvers');
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1120,7 +1123,7 @@ function () {
 
           case 5:
             provider = _context.sent;
-            debug('got write provider: ', !!provider);
+            debug$1('got write provider: ', !!provider);
             _context.next = 12;
             break;
 
@@ -1146,7 +1149,7 @@ function () {
               break;
             }
 
-            debug('is toshi');
+            debug$1('is toshi');
             accounts = window.web3.eth.accounts;
 
             if (!accounts.length) {
@@ -1180,25 +1183,25 @@ function () {
               break;
             }
 
-            debug('no writeProvider!');
+            debug$1('no writeProvider!');
             return _context.abrupt("return", null);
 
           case 32:
             _context.prev = 32;
             signer = provider.getSigner();
-            debug('signer: ', signer);
+            debug$1('signer: ', signer);
             _context.next = 37;
             return signer.getAddress();
 
           case 37:
             address = _context.sent;
-            debug('got address: ', address);
+            debug$1('got address: ', address);
             return _context.abrupt("return", address);
 
           case 42:
             _context.prev = 42;
             _context.t1 = _context["catch"](32);
-            debug('ERROR: ', _context.t1);
+            debug$1('ERROR: ', _context.t1);
 
             if (_context.t1.message.indexOf('unknown account') === -1) {
               console.error("Error in web3Resolvers#account: ".concat(_context.t1));
@@ -1333,7 +1336,7 @@ function _getReadProvider() {
   return _getReadProvider.apply(this, arguments);
 }
 
-var debug$1 = require('debug')('pt:web3Resolvers:block');
+var debug$2 = require('debug')('pt:web3Resolvers:block');
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1374,7 +1377,7 @@ function () {
 
           case 10:
             blockNumber = args.blockNumber;
-            debug$1('blockNumber: ', blockNumber);
+            debug$2('blockNumber: ', blockNumber);
             _context.next = 14;
             return provider.getBlock(blockNumber);
 
@@ -1384,7 +1387,7 @@ function () {
               __typename: 'EthersBlock',
               id: blockNumber
             }, block);
-            debug$1("block(".concat(blockNumber, "): "), result);
+            debug$2("block(".concat(blockNumber, "): "), result);
             return _context.abrupt("return", result);
 
           case 18:
@@ -1399,6 +1402,8 @@ function () {
     return _ref.apply(this, arguments);
   };
 }();
+
+var debug$3 = require('debug')('dapp-core:hasEthereumPermissions');
 
 function hasEthereumPermissions() {
   return _hasEthereumPermissions.apply(this, arguments);
@@ -1418,9 +1423,12 @@ function _hasEthereumPermissions() {
 
           case 2:
             systemInfo = _context.sent;
+            debug$3({
+              systemInfo: systemInfo
+            });
             return _context.abrupt("return", systemInfo && systemInfo.hasWeb3Permission || systemInfo && systemInfo.hasWeb3Available && systemInfo.hasWeb3Permission === undefined);
 
-          case 4:
+          case 5:
           case "end":
             return _context.stop();
         }
@@ -1463,7 +1471,7 @@ function () {
   };
 }();
 
-var debug$2 = require('debug')('dapp-core:networkId');
+var debug$4 = require('debug')('dapp-core:networkId');
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1578,11 +1586,11 @@ var Query = {
   systemInfo: systemInfo
 };
 
-var debug$3 = require('debug')('dapp-core:boundQuery');
+var debug$5 = require('debug')('dapp-core:boundQuery');
 
 function wrap(fxn, extraContext) {
   return function (opts, args, context, info) {
-    debug$3(extraContext);
+    debug$5(extraContext);
     return fxn(opts, args, Object.assign({}, context, extraContext), info);
   };
 }
@@ -2127,7 +2135,7 @@ function _inherits(subClass, superClass) {
 
 var EventEmitter = require('eventemitter3');
 
-var debug$4 = require('debug')('pt:withTransactionEe');
+var debug$6 = require('debug')('pt:withTransactionEe');
 
 function withTransactionEe(Component) {
   var _temp;
@@ -2176,7 +2184,7 @@ function withTransactionEe(Component) {
       });
 
       _defineProperty(_assertThisInitialized(_this), "ee", function (transactionId) {
-        debug$4('------------ ', _typeof(transactionId), transactionId);
+        debug$6('------------ ', _typeof(transactionId), transactionId);
 
         if (!_this.transactionEmitters[transactionId]) {
           _this.transactionEmitters[transactionId] = new EventEmitter();
@@ -2218,6 +2226,8 @@ var index$5 = /*#__PURE__*/Object.freeze({
 	withTransactionEe: withTransactionEe
 });
 
+var debug$7 = require('debug')('dapp-core:askEthereumPermissions');
+
 function askEthereumPermissions() {
   return _askEthereumPermissions.apply(this, arguments);
 }
@@ -2228,7 +2238,9 @@ function _askEthereumPermissions() {
   regenerator.mark(function _callee() {
     var requestPopUp,
         msg,
+        _msg,
         _args = arguments;
+
     return regenerator.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -2236,7 +2248,7 @@ function _askEthereumPermissions() {
             requestPopUp = _args.length > 0 && _args[0] !== undefined ? _args[0] : true;
 
             if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 12;
+              _context.next = 21;
               break;
             }
 
@@ -2245,26 +2257,49 @@ function _askEthereumPermissions() {
             return window.ethereum.enable(requestPopUp);
 
           case 5:
-            _context.next = 10;
+            _context.next = 19;
             break;
 
           case 7:
             _context.prev = 7;
             _context.t0 = _context["catch"](2);
+            msg = _context.t0.message;
 
-            if (_context.t0 !== 'User rejected provider access') {
-              console.error(_context.t0);
+            if (!/User rejected provider access/i.test(msg)) {
+              _context.next = 14;
+              break;
             }
 
-          case 10:
-            _context.next = 14;
+            console.error(_context.t0);
+            _context.next = 19;
             break;
 
-          case 12:
-            msg = 'Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)';
-            console.warn(msg);
-
           case 14:
+            if (!/got 1 arguments/i.test(msg)) {
+              _context.next = 19;
+              break;
+            }
+
+            if (!requestPopUp) {
+              _context.next = 19;
+              break;
+            }
+
+            _context.next = 18;
+            return window.ethereum.enable();
+
+          case 18:
+            debug$7('Enabled ethereum');
+
+          case 19:
+            _context.next = 23;
+            break;
+
+          case 21:
+            _msg = 'Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)';
+            console.warn(_msg);
+
+          case 23:
           case "end":
             return _context.stop();
         }

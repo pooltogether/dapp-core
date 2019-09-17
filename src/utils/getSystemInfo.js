@@ -1,3 +1,5 @@
+const debug = require('debug')('dapp-core:getSystemInfo')
+
 function isWindowDefined() {
   return typeof window !== 'undefined'
 }
@@ -80,6 +82,8 @@ const getWeb3Permission = async function () {
       // isEnabled = await window.ethereum._metamask.isEnabled()
       isApproved = await window.ethereum._metamask.isApproved()
     }
+
+    debug(window.ethereum)
 
     // // hack due to a MetaMask bug that shows up when you Quit Chrome and re-open Chrome
     // // right back to the tab using MetaMask
