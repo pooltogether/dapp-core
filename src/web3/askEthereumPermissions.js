@@ -3,7 +3,9 @@ const debug = require('debug')('dapp-core:askEthereumPermissions')
 export async function askEthereumPermissions (requestPopUp = true) {
   if (typeof window !== 'undefined' && window.ethereum) {
     try {
+      debug(`ethereum.enable(${requestPopUp})`)
       await window.ethereum.enable(requestPopUp)
+      debug(`enabled!`)
     } catch (error) {
       const msg = error.message
       if (/User rejected provider access/i.test(msg)) {

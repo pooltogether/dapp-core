@@ -18,6 +18,10 @@ var React = require('react');
 var React__default = _interopDefault(React);
 var reactApollo = require('react-apollo');
 
+function unwrapExports (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -1488,37 +1492,39 @@ function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
+            debug$4('Starting...');
             readProvider = context.readProvider;
 
             if (readProvider) {
-              _context.next = 7;
+              _context.next = 8;
               break;
             }
 
-            _context.next = 4;
+            _context.next = 5;
             return getReadProvider();
 
-          case 4:
+          case 5:
             provider = _context.sent;
-            _context.next = 10;
+            _context.next = 11;
             break;
 
-          case 7:
-            _context.next = 9;
+          case 8:
+            _context.next = 10;
             return readProvider();
 
-          case 9:
+          case 10:
             provider = _context.sent;
 
-          case 10:
-            _context.next = 12;
+          case 11:
+            _context.next = 13;
             return provider.getNetwork();
 
-          case 12:
+          case 13:
             network = _context.sent;
+            debug$4(network.chainId);
             return _context.abrupt("return", network.chainId);
 
-          case 14:
+          case 16:
           case "end":
             return _context.stop();
         }
@@ -1624,6 +1630,943 @@ function addTruffleArtifact(abiMapping, name, abi, truffleJsonArtifact) {
   Object.keys(truffleJsonArtifact.networks).forEach(function (networkId) {
     abiMapping.addAddress(name, parseInt(networkId), truffleJsonArtifact.networks[networkId].address);
   });
+}
+
+var Observable_1 = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+} // === Symbol Support ===
+
+
+var hasSymbols = function () {
+  return typeof Symbol === 'function';
+};
+
+var hasSymbol = function (name) {
+  return hasSymbols() && Boolean(Symbol[name]);
+};
+
+var getSymbol = function (name) {
+  return hasSymbol(name) ? Symbol[name] : '@@' + name;
+};
+
+if (hasSymbols() && !hasSymbol('observable')) {
+  Symbol.observable = Symbol('observable');
+}
+
+var SymbolIterator = getSymbol('iterator');
+var SymbolObservable = getSymbol('observable');
+var SymbolSpecies = getSymbol('species'); // === Abstract Operations ===
+
+function getMethod(obj, key) {
+  var value = obj[key];
+  if (value == null) return undefined;
+  if (typeof value !== 'function') throw new TypeError(value + ' is not a function');
+  return value;
+}
+
+function getSpecies(obj) {
+  var ctor = obj.constructor;
+
+  if (ctor !== undefined) {
+    ctor = ctor[SymbolSpecies];
+
+    if (ctor === null) {
+      ctor = undefined;
+    }
+  }
+
+  return ctor !== undefined ? ctor : Observable;
+}
+
+function isObservable(x) {
+  return x instanceof Observable; // SPEC: Brand check
+}
+
+function hostReportError(e) {
+  if (hostReportError.log) {
+    hostReportError.log(e);
+  } else {
+    setTimeout(function () {
+      throw e;
+    });
+  }
+}
+
+function enqueue(fn) {
+  Promise.resolve().then(function () {
+    try {
+      fn();
+    } catch (e) {
+      hostReportError(e);
+    }
+  });
+}
+
+function cleanupSubscription(subscription) {
+  var cleanup = subscription._cleanup;
+  if (cleanup === undefined) return;
+  subscription._cleanup = undefined;
+
+  if (!cleanup) {
+    return;
+  }
+
+  try {
+    if (typeof cleanup === 'function') {
+      cleanup();
+    } else {
+      var unsubscribe = getMethod(cleanup, 'unsubscribe');
+
+      if (unsubscribe) {
+        unsubscribe.call(cleanup);
+      }
+    }
+  } catch (e) {
+    hostReportError(e);
+  }
+}
+
+function closeSubscription(subscription) {
+  subscription._observer = undefined;
+  subscription._queue = undefined;
+  subscription._state = 'closed';
+}
+
+function flushSubscription(subscription) {
+  var queue = subscription._queue;
+
+  if (!queue) {
+    return;
+  }
+
+  subscription._queue = undefined;
+  subscription._state = 'ready';
+
+  for (var i = 0; i < queue.length; ++i) {
+    notifySubscription(subscription, queue[i].type, queue[i].value);
+    if (subscription._state === 'closed') break;
+  }
+}
+
+function notifySubscription(subscription, type, value) {
+  subscription._state = 'running';
+  var observer = subscription._observer;
+
+  try {
+    var m = getMethod(observer, type);
+
+    switch (type) {
+      case 'next':
+        if (m) m.call(observer, value);
+        break;
+
+      case 'error':
+        closeSubscription(subscription);
+        if (m) m.call(observer, value);else throw value;
+        break;
+
+      case 'complete':
+        closeSubscription(subscription);
+        if (m) m.call(observer);
+        break;
+    }
+  } catch (e) {
+    hostReportError(e);
+  }
+
+  if (subscription._state === 'closed') cleanupSubscription(subscription);else if (subscription._state === 'running') subscription._state = 'ready';
+}
+
+function onNotify(subscription, type, value) {
+  if (subscription._state === 'closed') return;
+
+  if (subscription._state === 'buffering') {
+    subscription._queue.push({
+      type: type,
+      value: value
+    });
+
+    return;
+  }
+
+  if (subscription._state !== 'ready') {
+    subscription._state = 'buffering';
+    subscription._queue = [{
+      type: type,
+      value: value
+    }];
+    enqueue(function () {
+      return flushSubscription(subscription);
+    });
+    return;
+  }
+
+  notifySubscription(subscription, type, value);
+}
+
+var Subscription = function () {
+  function Subscription(observer, subscriber) {
+    _classCallCheck(this, Subscription); // ASSERT: observer is an object
+    // ASSERT: subscriber is callable
+
+
+    this._cleanup = undefined;
+    this._observer = observer;
+    this._queue = undefined;
+    this._state = 'initializing';
+    var subscriptionObserver = new SubscriptionObserver(this);
+
+    try {
+      this._cleanup = subscriber.call(undefined, subscriptionObserver);
+    } catch (e) {
+      subscriptionObserver.error(e);
+    }
+
+    if (this._state === 'initializing') this._state = 'ready';
+  }
+
+  _createClass(Subscription, [{
+    key: 'unsubscribe',
+    value: function unsubscribe() {
+      if (this._state !== 'closed') {
+        closeSubscription(this);
+        cleanupSubscription(this);
+      }
+    }
+  }, {
+    key: 'closed',
+    get: function () {
+      return this._state === 'closed';
+    }
+  }]);
+
+  return Subscription;
+}();
+
+var SubscriptionObserver = function () {
+  function SubscriptionObserver(subscription) {
+    _classCallCheck(this, SubscriptionObserver);
+
+    this._subscription = subscription;
+  }
+
+  _createClass(SubscriptionObserver, [{
+    key: 'next',
+    value: function next(value) {
+      onNotify(this._subscription, 'next', value);
+    }
+  }, {
+    key: 'error',
+    value: function error(value) {
+      onNotify(this._subscription, 'error', value);
+    }
+  }, {
+    key: 'complete',
+    value: function complete() {
+      onNotify(this._subscription, 'complete');
+    }
+  }, {
+    key: 'closed',
+    get: function () {
+      return this._subscription._state === 'closed';
+    }
+  }]);
+
+  return SubscriptionObserver;
+}();
+
+var Observable = exports.Observable = function () {
+  function Observable(subscriber) {
+    _classCallCheck(this, Observable);
+
+    if (!(this instanceof Observable)) throw new TypeError('Observable cannot be called as a function');
+    if (typeof subscriber !== 'function') throw new TypeError('Observable initializer must be a function');
+    this._subscriber = subscriber;
+  }
+
+  _createClass(Observable, [{
+    key: 'subscribe',
+    value: function subscribe(observer) {
+      if (typeof observer !== 'object' || observer === null) {
+        observer = {
+          next: observer,
+          error: arguments[1],
+          complete: arguments[2]
+        };
+      }
+
+      return new Subscription(observer, this._subscriber);
+    }
+  }, {
+    key: 'forEach',
+    value: function forEach(fn) {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        if (typeof fn !== 'function') {
+          reject(new TypeError(fn + ' is not a function'));
+          return;
+        }
+
+        function done() {
+          subscription.unsubscribe();
+          resolve();
+        }
+
+        var subscription = _this.subscribe({
+          next: function (value) {
+            try {
+              fn(value, done);
+            } catch (e) {
+              reject(e);
+              subscription.unsubscribe();
+            }
+          },
+          error: reject,
+          complete: resolve
+        });
+      });
+    }
+  }, {
+    key: 'map',
+    value: function map(fn) {
+      var _this2 = this;
+
+      if (typeof fn !== 'function') throw new TypeError(fn + ' is not a function');
+      var C = getSpecies(this);
+      return new C(function (observer) {
+        return _this2.subscribe({
+          next: function (value) {
+            try {
+              value = fn(value);
+            } catch (e) {
+              return observer.error(e);
+            }
+
+            observer.next(value);
+          },
+          error: function (e) {
+            observer.error(e);
+          },
+          complete: function () {
+            observer.complete();
+          }
+        });
+      });
+    }
+  }, {
+    key: 'filter',
+    value: function filter(fn) {
+      var _this3 = this;
+
+      if (typeof fn !== 'function') throw new TypeError(fn + ' is not a function');
+      var C = getSpecies(this);
+      return new C(function (observer) {
+        return _this3.subscribe({
+          next: function (value) {
+            try {
+              if (!fn(value)) return;
+            } catch (e) {
+              return observer.error(e);
+            }
+
+            observer.next(value);
+          },
+          error: function (e) {
+            observer.error(e);
+          },
+          complete: function () {
+            observer.complete();
+          }
+        });
+      });
+    }
+  }, {
+    key: 'reduce',
+    value: function reduce(fn) {
+      var _this4 = this;
+
+      if (typeof fn !== 'function') throw new TypeError(fn + ' is not a function');
+      var C = getSpecies(this);
+      var hasSeed = arguments.length > 1;
+      var hasValue = false;
+      var seed = arguments[1];
+      var acc = seed;
+      return new C(function (observer) {
+        return _this4.subscribe({
+          next: function (value) {
+            var first = !hasValue;
+            hasValue = true;
+
+            if (!first || hasSeed) {
+              try {
+                acc = fn(acc, value);
+              } catch (e) {
+                return observer.error(e);
+              }
+            } else {
+              acc = value;
+            }
+          },
+          error: function (e) {
+            observer.error(e);
+          },
+          complete: function () {
+            if (!hasValue && !hasSeed) return observer.error(new TypeError('Cannot reduce an empty sequence'));
+            observer.next(acc);
+            observer.complete();
+          }
+        });
+      });
+    }
+  }, {
+    key: 'concat',
+    value: function concat() {
+      var _this5 = this;
+
+      for (var _len = arguments.length, sources = Array(_len), _key = 0; _key < _len; _key++) {
+        sources[_key] = arguments[_key];
+      }
+
+      var C = getSpecies(this);
+      return new C(function (observer) {
+        var subscription = void 0;
+        var index = 0;
+
+        function startNext(next) {
+          subscription = next.subscribe({
+            next: function (v) {
+              observer.next(v);
+            },
+            error: function (e) {
+              observer.error(e);
+            },
+            complete: function () {
+              if (index === sources.length) {
+                subscription = undefined;
+                observer.complete();
+              } else {
+                startNext(C.from(sources[index++]));
+              }
+            }
+          });
+        }
+
+        startNext(_this5);
+        return function () {
+          if (subscription) {
+            subscription.unsubscribe();
+            subscription = undefined;
+          }
+        };
+      });
+    }
+  }, {
+    key: 'flatMap',
+    value: function flatMap(fn) {
+      var _this6 = this;
+
+      if (typeof fn !== 'function') throw new TypeError(fn + ' is not a function');
+      var C = getSpecies(this);
+      return new C(function (observer) {
+        var subscriptions = [];
+
+        var outer = _this6.subscribe({
+          next: function (value) {
+            if (fn) {
+              try {
+                value = fn(value);
+              } catch (e) {
+                return observer.error(e);
+              }
+            }
+
+            var inner = C.from(value).subscribe({
+              next: function (value) {
+                observer.next(value);
+              },
+              error: function (e) {
+                observer.error(e);
+              },
+              complete: function () {
+                var i = subscriptions.indexOf(inner);
+                if (i >= 0) subscriptions.splice(i, 1);
+                completeIfDone();
+              }
+            });
+            subscriptions.push(inner);
+          },
+          error: function (e) {
+            observer.error(e);
+          },
+          complete: function () {
+            completeIfDone();
+          }
+        });
+
+        function completeIfDone() {
+          if (outer.closed && subscriptions.length === 0) observer.complete();
+        }
+
+        return function () {
+          subscriptions.forEach(function (s) {
+            return s.unsubscribe();
+          });
+          outer.unsubscribe();
+        };
+      });
+    }
+  }, {
+    key: SymbolObservable,
+    value: function () {
+      return this;
+    }
+  }], [{
+    key: 'from',
+    value: function from(x) {
+      var C = typeof this === 'function' ? this : Observable;
+      if (x == null) throw new TypeError(x + ' is not an object');
+      var method = getMethod(x, SymbolObservable);
+
+      if (method) {
+        var observable = method.call(x);
+        if (Object(observable) !== observable) throw new TypeError(observable + ' is not an object');
+        if (isObservable(observable) && observable.constructor === C) return observable;
+        return new C(function (observer) {
+          return observable.subscribe(observer);
+        });
+      }
+
+      if (hasSymbol('iterator')) {
+        method = getMethod(x, SymbolIterator);
+
+        if (method) {
+          return new C(function (observer) {
+            enqueue(function () {
+              if (observer.closed) return;
+              var _iteratorNormalCompletion = true;
+              var _didIteratorError = false;
+              var _iteratorError = undefined;
+
+              try {
+                for (var _iterator = method.call(x)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                  var item = _step.value;
+                  observer.next(item);
+                  if (observer.closed) return;
+                }
+              } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                  }
+                } finally {
+                  if (_didIteratorError) {
+                    throw _iteratorError;
+                  }
+                }
+              }
+
+              observer.complete();
+            });
+          });
+        }
+      }
+
+      if (Array.isArray(x)) {
+        return new C(function (observer) {
+          enqueue(function () {
+            if (observer.closed) return;
+
+            for (var i = 0; i < x.length; ++i) {
+              observer.next(x[i]);
+              if (observer.closed) return;
+            }
+
+            observer.complete();
+          });
+        });
+      }
+
+      throw new TypeError(x + ' is not observable');
+    }
+  }, {
+    key: 'of',
+    value: function of() {
+      for (var _len2 = arguments.length, items = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        items[_key2] = arguments[_key2];
+      }
+
+      var C = typeof this === 'function' ? this : Observable;
+      return new C(function (observer) {
+        enqueue(function () {
+          if (observer.closed) return;
+
+          for (var i = 0; i < items.length; ++i) {
+            observer.next(items[i]);
+            if (observer.closed) return;
+          }
+
+          observer.complete();
+        });
+      });
+    }
+  }, {
+    key: SymbolSpecies,
+    get: function () {
+      return this;
+    }
+  }]);
+
+  return Observable;
+}();
+
+if (hasSymbols()) {
+  Object.defineProperty(Observable, Symbol('extensions'), {
+    value: {
+      symbol: SymbolObservable,
+      hostReportError: hostReportError
+    },
+    configurable: true
+  });
+}
+});
+
+unwrapExports(Observable_1);
+var Observable_2 = Observable_1.Observable;
+
+var zenObservable = Observable_1.Observable;
+
+var Observable = zenObservable;
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+
+/* global Reflect, Promise */
+var extendStatics = function (d, b) {
+  extendStatics = Object.setPrototypeOf || {
+    __proto__: []
+  } instanceof Array && function (d, b) {
+    d.__proto__ = b;
+  } || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+  };
+
+  return extendStatics(d, b);
+};
+
+function __extends(d, b) {
+  extendStatics(d, b);
+
+  function __() {
+    this.constructor = d;
+  }
+
+  d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+var __assign = function () {
+  __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+      s = arguments[i];
+
+      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+
+    return t;
+  };
+
+  return __assign.apply(this, arguments);
+};
+
+var genericMessage = "Invariant Violation";
+var _a = Object.setPrototypeOf,
+    setPrototypeOf = _a === void 0 ? function (obj, proto) {
+  obj.__proto__ = proto;
+  return obj;
+} : _a;
+
+var InvariantError =
+/** @class */
+function (_super) {
+  __extends(InvariantError, _super);
+
+  function InvariantError(message) {
+    if (message === void 0) {
+      message = genericMessage;
+    }
+
+    var _this = _super.call(this, typeof message === "number" ? genericMessage + ": " + message + " (see https://github.com/apollographql/invariant-packages)" : message) || this;
+
+    _this.framesToPop = 1;
+    _this.name = genericMessage;
+    setPrototypeOf(_this, InvariantError.prototype);
+    return _this;
+  }
+
+  return InvariantError;
+}(Error);
+
+function invariant(condition, message) {
+  if (!condition) {
+    throw new InvariantError(message);
+  }
+}
+
+function wrapConsoleMethod(method) {
+  return function () {
+    return console[method].apply(console, arguments);
+  };
+}
+
+(function (invariant) {
+  invariant.warn = wrapConsoleMethod("warn");
+  invariant.error = wrapConsoleMethod("error");
+})(invariant || (invariant = {})); // Code that uses ts-invariant with rollup-plugin-invariant may want to
+// import this process stub to avoid errors evaluating process.env.NODE_ENV.
+// However, because most ESM-to-CJS compilers will rewrite the process import
+// as tsInvariant.process, which prevents proper replacement by minifiers, we
+// also attempt to define the stub globally when it is not already defined.
+
+
+var processStub = {
+  env: {}
+};
+
+if (typeof process === "object") {
+  processStub = process;
+} else try {
+  // Using Function to evaluate this assignment in global scope also escapes
+  // the strict mode of the current module, thereby allowing the assignment.
+  // Inspired by https://github.com/facebook/regenerator/pull/369.
+  Function("stub", "process = stub")(processStub);
+} catch (atLeastWeTried) {// The assignment can fail if a Content Security Policy heavy-handedly
+  // forbids Function usage. In those environments, developers should take
+  // extra care to replace process.env.NODE_ENV in their production builds,
+  // or define an appropriate global.process polyfill.
+}
+
+function getOperationName(doc) {
+  return doc.definitions.filter(function (definition) {
+    return definition.kind === 'OperationDefinition' && definition.name;
+  }).map(function (x) {
+    return x.name.value;
+  })[0] || null;
+}
+
+var canUseWeakMap = typeof WeakMap === 'function' && !(typeof navigator === 'object' && navigator.product === 'ReactNative');
+
+function validateOperation(operation) {
+  var OPERATION_FIELDS = ['query', 'operationName', 'variables', 'extensions', 'context'];
+
+  for (var _i = 0, _a = Object.keys(operation); _i < _a.length; _i++) {
+    var key = _a[_i];
+
+    if (OPERATION_FIELDS.indexOf(key) < 0) {
+      throw process.env.NODE_ENV === "production" ? new InvariantError(2) : new InvariantError("illegal argument: " + key);
+    }
+  }
+
+  return operation;
+}
+
+var LinkError = function (_super) {
+  __extends(LinkError, _super);
+
+  function LinkError(message, link) {
+    var _this = _super.call(this, message) || this;
+
+    _this.link = link;
+    return _this;
+  }
+
+  return LinkError;
+}(Error);
+
+function isTerminating(link) {
+  return link.request.length <= 1;
+}
+
+function transformOperation(operation) {
+  var transformedOperation = {
+    variables: operation.variables || {},
+    extensions: operation.extensions || {},
+    operationName: operation.operationName,
+    query: operation.query
+  };
+
+  if (!transformedOperation.operationName) {
+    transformedOperation.operationName = typeof transformedOperation.query !== 'string' ? getOperationName(transformedOperation.query) : '';
+  }
+
+  return transformedOperation;
+}
+
+function createOperation(starting, operation) {
+  var context = __assign({}, starting);
+
+  var setContext = function (next) {
+    if (typeof next === 'function') {
+      context = __assign({}, context, next(context));
+    } else {
+      context = __assign({}, context, next);
+    }
+  };
+
+  var getContext = function () {
+    return __assign({}, context);
+  };
+
+  Object.defineProperty(operation, 'setContext', {
+    enumerable: false,
+    value: setContext
+  });
+  Object.defineProperty(operation, 'getContext', {
+    enumerable: false,
+    value: getContext
+  });
+  Object.defineProperty(operation, 'toKey', {
+    enumerable: false,
+    value: function () {
+      return getKey(operation);
+    }
+  });
+  return operation;
+}
+
+function getKey(operation) {
+  var query = operation.query,
+      variables = operation.variables,
+      operationName = operation.operationName;
+  return JSON.stringify([operationName, query, variables]);
+}
+
+function passthrough(op, forward) {
+  return forward ? forward(op) : Observable.of();
+}
+
+function toLink(handler) {
+  return typeof handler === 'function' ? new ApolloLink(handler) : handler;
+}
+
+function empty() {
+  return new ApolloLink(function () {
+    return Observable.of();
+  });
+}
+
+function from(links) {
+  if (links.length === 0) return empty();
+  return links.map(toLink).reduce(function (x, y) {
+    return x.concat(y);
+  });
+}
+
+function split(test, left, right) {
+  var leftLink = toLink(left);
+  var rightLink = toLink(right || new ApolloLink(passthrough));
+
+  if (isTerminating(leftLink) && isTerminating(rightLink)) {
+    return new ApolloLink(function (operation) {
+      return test(operation) ? leftLink.request(operation) || Observable.of() : rightLink.request(operation) || Observable.of();
+    });
+  } else {
+    return new ApolloLink(function (operation, forward) {
+      return test(operation) ? leftLink.request(operation, forward) || Observable.of() : rightLink.request(operation, forward) || Observable.of();
+    });
+  }
+}
+
+var concat = function (first, second) {
+  var firstLink = toLink(first);
+
+  if (isTerminating(firstLink)) {
+    process.env.NODE_ENV === "production" || invariant.warn(new LinkError("You are calling concat on a terminating link, which will have no effect", firstLink));
+    return firstLink;
+  }
+
+  var nextLink = toLink(second);
+
+  if (isTerminating(nextLink)) {
+    return new ApolloLink(function (operation) {
+      return firstLink.request(operation, function (op) {
+        return nextLink.request(op) || Observable.of();
+      }) || Observable.of();
+    });
+  } else {
+    return new ApolloLink(function (operation, forward) {
+      return firstLink.request(operation, function (op) {
+        return nextLink.request(op, forward) || Observable.of();
+      }) || Observable.of();
+    });
+  }
+};
+
+var ApolloLink = function () {
+  function ApolloLink(request) {
+    if (request) this.request = request;
+  }
+
+  ApolloLink.prototype.split = function (test, left, right) {
+    return this.concat(split(test, left, right || new ApolloLink(passthrough)));
+  };
+
+  ApolloLink.prototype.concat = function (next) {
+    return concat(this, next);
+  };
+
+  ApolloLink.prototype.request = function (operation, forward) {
+    throw process.env.NODE_ENV === "production" ? new InvariantError(1) : new InvariantError('request is not implemented');
+  };
+
+  ApolloLink.empty = empty;
+  ApolloLink.from = from;
+  ApolloLink.split = split;
+  ApolloLink.execute = execute;
+  return ApolloLink;
+}();
+
+function execute(link, operation) {
+  return link.request(createOperation(operation.context, transformOperation(validateOperation(operation)))) || Observable.of();
 }
 
 var sendTransactionFactory = function sendTransactionFactory(abiMapping, writeProvider) {
@@ -1774,6 +2717,7 @@ var createClient = function createClient() {
   var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var abiMapping = options.abiMapping,
       provider = options.provider,
+      link = options.link,
       writeProvider = options.writeProvider,
       defaultFromBlock = options.defaultFromBlock;
   var userResolvers = options.resolvers || {};
@@ -1802,10 +2746,18 @@ var createClient = function createClient() {
       sendTransaction: sendTransactionFactory(abiMapping, writeProvider)
     }
   }, userResolvers);
+  var apolloLink;
+
+  if (link) {
+    apolloLink = ApolloLink.from([ethereumLink, link]);
+  } else {
+    apolloLink = ethereumLink;
+  }
+
   var client = new apolloClient.ApolloClient({
     cache: cache,
-    resolvers: resolvers,
-    link: ethereumLink
+    link: apolloLink,
+    resolvers: resolvers
   });
   client.onResetStore(initCache);
   watchNetworkAndAccount(client);
@@ -2248,63 +3200,65 @@ function _askEthereumPermissions() {
             requestPopUp = _args.length > 0 && _args[0] !== undefined ? _args[0] : true;
 
             if (!(typeof window !== 'undefined' && window.ethereum)) {
-              _context.next = 21;
+              _context.next = 23;
               break;
             }
 
             _context.prev = 2;
-            _context.next = 5;
+            debug$7("ethereum.enable(".concat(requestPopUp, ")"));
+            _context.next = 6;
             return window.ethereum.enable(requestPopUp);
 
-          case 5:
-            _context.next = 19;
+          case 6:
+            debug$7("enabled!");
+            _context.next = 21;
             break;
 
-          case 7:
-            _context.prev = 7;
+          case 9:
+            _context.prev = 9;
             _context.t0 = _context["catch"](2);
             msg = _context.t0.message;
 
             if (!/User rejected provider access/i.test(msg)) {
-              _context.next = 14;
+              _context.next = 16;
               break;
             }
 
             console.error(_context.t0);
-            _context.next = 19;
+            _context.next = 21;
             break;
 
-          case 14:
+          case 16:
             if (!/got 1 arguments/i.test(msg)) {
-              _context.next = 19;
+              _context.next = 21;
               break;
             }
 
             if (!requestPopUp) {
-              _context.next = 19;
+              _context.next = 21;
               break;
             }
 
-            _context.next = 18;
+            _context.next = 20;
             return window.ethereum.enable();
 
-          case 18:
+          case 20:
             debug$7('Enabled ethereum');
 
-          case 19:
-            _context.next = 23;
+          case 21:
+            _context.next = 25;
             break;
 
-          case 21:
+          case 23:
             _msg = 'Could not find `window` or `window.ethereum` (Browser is not an Ethereum-powered browser?)';
             console.warn(_msg);
 
-          case 23:
+          case 25:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[2, 7]]);
+    }, _callee, null, [[2, 9]]);
   }));
   return _askEthereumPermissions.apply(this, arguments);
 }

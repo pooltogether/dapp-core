@@ -1,4 +1,5 @@
 import { ApolloClient } from 'apollo-client'
+import { ApolloLink } from 'apollo-link'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { EthereumLink } from 'apollo-link-ethereum'
 import { EthersResolver } from 'apollo-link-ethereum-resolver-ethersjs'
@@ -19,6 +20,7 @@ export const createClient = function (
   const {
     abiMapping,
     provider,
+    link,
     writeProvider,
     defaultFromBlock
   } = options
@@ -57,10 +59,17 @@ export const createClient = function (
     userResolvers
   )
 
+  let apolloLink
+  if (link) {
+    apolloLink = ApolloLink.from([ethereumLink, link])
+  } else {
+    apolloLink = ethereumLink
+  }
+
   const client = new ApolloClient({
     cache,
-    resolvers,
-    link: ethereumLink
+    link: apolloLink,
+    resolvers
   })
 
   client.onResetStore(initCache)
