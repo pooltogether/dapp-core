@@ -2728,7 +2728,7 @@ var createClient = function createClient() {
     defaultFromBlock: defaultFromBlock
   });
   var ethereumLink = new apolloLinkEthereum.EthereumLink(ethersResolver);
-  var cache = new apolloCacheInmemory.InMemoryCache();
+  var cache = options.cache || new apolloCacheInmemory.InMemoryCache();
 
   var initCache = function initCache() {
     cache.writeData({

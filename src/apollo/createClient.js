@@ -34,7 +34,7 @@ export const createClient = function (
   })
   const ethereumLink = new EthereumLink(ethersResolver)
 
-  const cache = new InMemoryCache()
+  const cache = options.cache || new InMemoryCache()
 
   const initCache = () => {
     cache.writeData({
