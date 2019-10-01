@@ -1,6 +1,6 @@
 {
   "name": "dapp-core",
-  "version": "0.7.9",
+  "version": "0.7.11",
   "description": "Core dapp logic using Apollo Link Ethereum and Ethers",
   "main": "dist/bundle.js",
   "repository": "https://github.com/DeltaCamp/dapp-core",
