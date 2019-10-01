@@ -5,13 +5,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var ethers = require('ethers');
+var apolloLinkEthereumMutationsEthersjs = require('apollo-link-ethereum-mutations-ethersjs');
 var apolloClient = require('apollo-client');
 var apolloCacheInmemory = require('apollo-cache-inmemory');
 var apolloLinkEthereum = require('apollo-link-ethereum');
 var apolloLinkEthereumResolverEthersjs = require('apollo-link-ethereum-resolver-ethersjs');
 var _ = require('lodash');
 var ___default = _interopDefault(_);
-var apolloLinkEthereumMutationsEthersjs = require('apollo-link-ethereum-mutations-ethersjs');
 var gql = _interopDefault(require('graphql-tag'));
 var dateFns = require('date-fns');
 var React = require('react');
@@ -1580,6 +1580,77 @@ var index = /*#__PURE__*/Object.freeze({
 	systemInfo: systemInfo
 });
 
+var sendTransactionFactory = function sendTransactionFactory(abiMapping, writeProvider) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regenerator.mark(function _callee(rootData, args, context, info) {
+        var provider, options, fn;
+        return regenerator.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (!(typeof writeProvider === 'function')) {
+                  _context.next = 6;
+                  break;
+                }
+
+                _context.next = 3;
+                return writeProvider();
+
+              case 3:
+                provider = _context.sent;
+                _context.next = 13;
+                break;
+
+              case 6:
+                if (!writeProvider) {
+                  _context.next = 10;
+                  break;
+                }
+
+                provider = writeProvider;
+                _context.next = 13;
+                break;
+
+              case 10:
+                _context.next = 12;
+                return getWriteProvider();
+
+              case 12:
+                provider = _context.sent;
+
+              case 13:
+                options = {
+                  provider: provider,
+                  abiMapping: abiMapping
+                };
+                fn = apolloLinkEthereumMutationsEthersjs.sendTransactionWithOptions(options);
+                return _context.abrupt("return", fn(rootData, args, context, info));
+
+              case 16:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function (_x, _x2, _x3, _x4) {
+        return _ref.apply(this, arguments);
+      };
+    }()
+  );
+};
+
+
+
+var index$1 = /*#__PURE__*/Object.freeze({
+	sendTransactionFactory: sendTransactionFactory
+});
+
 /**
  * Resolvers execute the behaviour when an Apollo query with the same name is run.
  */
@@ -1619,8 +1690,9 @@ function boundQuery(_ref) {
 
 
 
-var index$1 = /*#__PURE__*/Object.freeze({
+var index$2 = /*#__PURE__*/Object.freeze({
 	queries: index,
+	mutations: index$1,
 	Query: Query,
 	boundQuery: boundQuery
 });
@@ -2569,71 +2641,6 @@ function execute(link, operation) {
   return link.request(createOperation(operation.context, transformOperation(validateOperation(operation)))) || Observable.of();
 }
 
-var sendTransactionFactory = function sendTransactionFactory(abiMapping, writeProvider) {
-  return (
-    /*#__PURE__*/
-    function () {
-      var _ref = _asyncToGenerator(
-      /*#__PURE__*/
-      regenerator.mark(function _callee(rootData, args, context, info) {
-        var provider, options, fn;
-        return regenerator.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                if (!(typeof writeProvider === 'function')) {
-                  _context.next = 6;
-                  break;
-                }
-
-                _context.next = 3;
-                return writeProvider();
-
-              case 3:
-                provider = _context.sent;
-                _context.next = 13;
-                break;
-
-              case 6:
-                if (!writeProvider) {
-                  _context.next = 10;
-                  break;
-                }
-
-                provider = writeProvider;
-                _context.next = 13;
-                break;
-
-              case 10:
-                _context.next = 12;
-                return getWriteProvider();
-
-              case 12:
-                provider = _context.sent;
-
-              case 13:
-                options = {
-                  provider: provider,
-                  abiMapping: abiMapping
-                };
-                fn = apolloLinkEthereumMutationsEthersjs.sendTransactionWithOptions(options);
-                return _context.abrupt("return", fn(rootData, args, context, info));
-
-              case 16:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _callee);
-      }));
-
-      return function (_x, _x2, _x3, _x4) {
-        return _ref.apply(this, arguments);
-      };
-    }()
-  );
-};
-
 function _taggedTemplateLiteral(strings, raw) {
   if (!raw) {
     raw = strings.slice(0);
@@ -2766,10 +2773,11 @@ var createClient = function createClient() {
 
 
 
-var index$2 = /*#__PURE__*/Object.freeze({
-	resolvers: index$1,
+var index$3 = /*#__PURE__*/Object.freeze({
+	resolvers: index$2,
 	addTruffleArtifact: addTruffleArtifact,
-	createClient: createClient
+	createClient: createClient,
+	watchNetworkAndAccount: watchNetworkAndAccount
 });
 
 function _templateObject$3() {
@@ -2818,7 +2826,7 @@ var systemInfoQuery = gql(_templateObject$6());
 
 
 
-var index$3 = /*#__PURE__*/Object.freeze({
+var index$4 = /*#__PURE__*/Object.freeze({
 	accountQuery: accountQuery,
 	blockQuery: blockQuery,
 	blockSubscription: blockSubscription,
@@ -2973,7 +2981,7 @@ function toWei(ether) {
 
 
 
-var index$4 = /*#__PURE__*/Object.freeze({
+var index$5 = /*#__PURE__*/Object.freeze({
 	isAddressZero: isAddressZero,
 	bigNumberify: bigNumberify,
 	displayWeiToEther: displayWeiToEther,
@@ -3174,7 +3182,7 @@ function withTransactionEe(Component) {
 
 
 
-var index$5 = /*#__PURE__*/Object.freeze({
+var index$6 = /*#__PURE__*/Object.freeze({
 	withTransactionEe: withTransactionEe
 });
 
@@ -3309,7 +3317,7 @@ function _getNetworkId() {
 
 
 
-var index$6 = /*#__PURE__*/Object.freeze({
+var index$7 = /*#__PURE__*/Object.freeze({
 	askEthereumPermissions: askEthereumPermissions,
 	getNetworkId: getNetworkId,
 	getNetworkName: getNetworkName,
@@ -3319,8 +3327,8 @@ var index$6 = /*#__PURE__*/Object.freeze({
 	isToshi: isToshi
 });
 
-exports.apollo = index$2;
-exports.queries = index$3;
-exports.react = index$5;
-exports.utils = index$4;
-exports.web3 = index$6;
+exports.apollo = index$3;
+exports.queries = index$4;
+exports.react = index$6;
+exports.utils = index$5;
+exports.web3 = index$7;
