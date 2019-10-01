@@ -21,13 +21,13 @@ export const createClient = function (
     abiMapping,
     provider,
     link,
-    writeProvider,
-    defaultFromBlock
+    defaultFromBlock,
+    writeProvider
   } = options
   const userResolvers = options.resolvers || {}
   const initialCacheData = options.initialCacheData || {}
 
-  const ethersResolver = new EthersResolver({
+  const ethersResolver = options.ethersResolver || new EthersResolver({
     abiMapping,
     provider,
     defaultFromBlock

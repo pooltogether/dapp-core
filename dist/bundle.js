@@ -2718,11 +2718,11 @@ var createClient = function createClient() {
   var abiMapping = options.abiMapping,
       provider = options.provider,
       link = options.link,
-      writeProvider = options.writeProvider,
-      defaultFromBlock = options.defaultFromBlock;
+      defaultFromBlock = options.defaultFromBlock,
+      writeProvider = options.writeProvider;
   var userResolvers = options.resolvers || {};
   var initialCacheData = options.initialCacheData || {};
-  var ethersResolver = new apolloLinkEthereumResolverEthersjs.EthersResolver({
+  var ethersResolver = options.ethersResolver || new apolloLinkEthereumResolverEthersjs.EthersResolver({
     abiMapping: abiMapping,
     provider: provider,
     defaultFromBlock: defaultFromBlock
