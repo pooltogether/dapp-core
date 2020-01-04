@@ -928,7 +928,9 @@ function isNavigatorDefined() {
 var getBrowser = function getBrowser(userAgent) {
   var browser = 'unknown';
 
-  if (/chrome/i.test(userAgent)) {
+  if (/opr/i.test(userAgent)) {
+    browser = 'Opera';
+  } else if (/chrome/i.test(userAgent)) {
     browser = 'Chrome';
   } else if (/safari/i.test(userAgent)) {
     browser = 'Safari';

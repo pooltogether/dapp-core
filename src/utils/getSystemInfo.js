@@ -18,7 +18,9 @@ function isNavigatorDefined() {
 const getBrowser = function (userAgent) {
   let browser = 'unknown'
 
-  if (/chrome/i.test(userAgent)) {
+  if (/opr/i.test(userAgent)) {
+    browser = 'Opera'
+ } else if (/chrome/i.test(userAgent)) {
     browser = 'Chrome'
   } else if (/safari/i.test(userAgent)) {
     browser = 'Safari'
