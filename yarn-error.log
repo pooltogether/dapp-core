@@ -33,7 +33,7 @@ npm manifest:
     "description": "React components for Apollo Link Ethereum",
     "module": "src/index.js",
     "main": "dist/bundle.js",
-    "repository": "https://github.com/DeltaCamp/apollo-link-ethereum-react",
+    "repository": "https://github.com/pooltogether/apollo-link-ethereum-react",
     "author": "Brendan Asselstine <brendan@delta.camp>",
     "license": "MIT",
     "private": false,
