@@ -1,7 +1,7 @@
 {
   "name": "dapp-core",
-  "version": "0.7.14",
-  "description": "Core dapp logic using Apollo Link Ethereum and Ethers",
+  "version": "0.7.15",
+  "description": "Core dapp logic using Tightbeam, Apollo Link Ethereum, and/or Ethers",
   "main": "dist/bundle.js",
   "repository": "https://github.com/pooltogether/dapp-core",
   "contributors": [
